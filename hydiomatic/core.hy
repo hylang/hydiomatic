@@ -15,8 +15,7 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]]
-        [hydiomatic.rules [*]]
-        [hy [HyExpression]])
+        [hydiomatic.rules [*]])
 (require adderall.dsl)
 
 (defn simplify-expression [expression]
@@ -24,4 +23,4 @@
                     (rules/arithmeticᵒ (list expression) q))]]
     (if (empty? alts)
       expression
-      (HyExpression (first alts)))))
+      (first alts))))

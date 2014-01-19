@@ -21,23 +21,19 @@
   (condᵉ
    ;; (+ x (+ ...)) => (+ x ...)
    [(fresh [x xs]
-           (≡ expression ['+ x (cons '+ xs)])
-           (fresh [tmp]
-                  (≡ ['+ (cons x xs)] tmp)
-                  (flattenᵒ tmp out)))]
+           (≡ expression `(+ ~x (+ . ~xs)))
+           (≡ out `(+ ~x . ~xs)))]
    ;; (* x (* ...)) => (* x ...)
    [(fresh [x xs]
-           (≡ expression ['* x (cons '* xs)])
-           (fresh [tmp]
-                  (≡ ['* (cons x xs)] tmp)
-                  (flattenᵒ tmp out)))]
+           (≡ expression `(* ~x (* . ~xs)))
+           (≡ out `(* ~x . ~xs)))]
    ;; (+ x 1), (+ 1 x) => (inc x)
    [(fresh [x]
            (condᵉ
-            [(≡ expression ['+ x 1])]
-            [(≡ expression ['+ 1 x])])
-           (≡ out ['inc x]))]
+            [(≡ expression `(+ ~x 1))]
+            [(≡ expression `(+ 1 ~x))])
+           (≡ out `(inc ~x)))]
    ;; (- x 1) => (dec x)
    [(fresh [x]
-           (≡ expression ['- x 1])
-           (≡ out ['dec x]))]))
+           (≡ expression `(- ~x 1))
+           (≡ out `(dec ~x)))]))
