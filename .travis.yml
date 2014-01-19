@@ -4,6 +4,6 @@ python:
   - "2.7"
   - "3.2"
   - "3.3"
-install: ./setup.sh
+install: (yes s | ./setup.sh) || true
 script:
   - nosetests
