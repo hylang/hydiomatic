@@ -30,6 +30,10 @@
   (assert (= (simplify-expression '(* 1 (* 2 3)))
              '(* 1 2 3))))
 
+(defn test-simplification-arith-many-plus []
+  (assert (= (simplify-expression '(+ 1 (+ 2 3)))
+             '(+ 1 2 3))))
+
 (defn test-simplification-identity []
   (assert (= (simplify-expression '())
              '()))

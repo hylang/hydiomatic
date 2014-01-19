@@ -22,6 +22,18 @@
 
 (defn-alias [rules/arithmeticᵒ rules/arithmetico] [expression out]
   (condᵉ
+   ;; (+ x (+ ...)) => (+ x ...)
+   [(fresh [x xs]
+           (≡ expression ['+ x (cons '+ xs)])
+           (fresh [tmp]
+                  (≡ ['+ (cons x xs)] tmp)
+                  (flattenᵒ tmp out)))]
+   ;; (* x (* ...)) => (* x ...)
+   [(fresh [x xs]
+           (≡ expression ['* x (cons '* xs)])
+           (fresh [tmp]
+                  (≡ ['* (cons x xs)] tmp)
+                  (flattenᵒ tmp out)))]
    ;; (+ x 1), (+ 1 x) => (inc x)
    [(fresh [x]
            (condᵉ
@@ -31,10 +43,4 @@
    ;; (- x 1) => (dec x)
    [(fresh [x]
            (≡ expression ['- x 1])
-           (≡ out ['dec x]))]
-   ;; (* x (* ...)) => (* x ...)
-   [(fresh [x xs]
-           (≡ expression ['* x (cons '* xs)])
-           (fresh [tmp]
-                  (≡ ['* (cons x xs)] tmp)
-                  (flattenᵒ tmp out)))]))
+           (≡ out ['dec x]))]))
