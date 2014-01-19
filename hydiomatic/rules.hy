@@ -32,7 +32,6 @@
            (≡ out ['dec x]))]
    [(fresh [x xs]
            (≡ expression ['* x (cons '* xs)])
-           (fresh [res tmp]
+           (fresh [tmp]
                   (≡ ['* (cons x xs)] tmp)
-                  (flattenᵒ tmp res)
-                  (≡ out res)))]))
+                  (flattenᵒ tmp out)))]))
