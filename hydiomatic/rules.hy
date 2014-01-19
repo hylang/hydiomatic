@@ -27,6 +27,12 @@
             [(≡ op '*)])
            (≡ expression `(~op ~x (~op . ~xs)))
            (≡ out `(~op ~x . ~xs)))]
+   ;; (+ 0 x), (+ x 0) => x
+   [(fresh [x]
+           (condᵉ
+            [(≡ expression `(+ 0 ~x))]
+            [(≡ expression `(+ ~x 0))])
+           (≡ out `~x))]
    ;; (+ x 1), (+ 1 x) => (inc x)
    [(fresh [x]
            (condᵉ
