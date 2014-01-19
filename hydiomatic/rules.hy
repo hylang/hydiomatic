@@ -20,13 +20,13 @@
 (defn-alias [rules/arithmeticᵒ rules/arithmetico] [expression out]
   (condᵉ
    ;; (+ x (+ ...)) => (+ x ...)
-   [(fresh [x xs]
-           (≡ expression `(+ ~x (+ . ~xs)))
-           (≡ out `(+ ~x . ~xs)))]
    ;; (* x (* ...)) => (* x ...)
-   [(fresh [x xs]
-           (≡ expression `(* ~x (* . ~xs)))
-           (≡ out `(* ~x . ~xs)))]
+   [(fresh [op x xs]
+           (condᵉ
+            [(≡ op '+)]
+            [(≡ op '*)])
+           (≡ expression `(~op ~x (~op . ~xs)))
+           (≡ out `(~op ~x . ~xs)))]
    ;; (+ x 1), (+ 1 x) => (inc x)
    [(fresh [x]
            (condᵉ
