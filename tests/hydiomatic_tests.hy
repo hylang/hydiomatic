@@ -39,3 +39,11 @@
              '()))
   (assert (= (simplify-expression '(inc 2))
              '(inc 2))))
+
+(defn test-simplify []
+  (assert (= (simplify '(do (+ 1 (+ 1))))
+             '(do (inc 1))))
+  (assert (= (simplify '(* 2 (* 3 (+ 5 (+ 1)))))
+             '(* 2 3 (inc 5))))
+  (assert (= (simplify '(* a (* b (+ c (+ 1)))))
+             '(* a b (inc c)))))

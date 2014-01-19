@@ -15,12 +15,36 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]]
-        [hydiomatic.rules [*]])
+        [hydiomatic.rules [*]]
+        [hy [HyExpression]]
+        [functools [partial]])
 (require adderall.dsl)
 
+(defn walk [inner outer form]
+  (cond
+   [(isinstance form HyExpression)
+    (outer (HyExpression (map inner form)))]
+   [true (outer form)]))
+
+(defn identity [f] f)
+
+(defn prewalk [f form]
+  (walk (fn [x] (prewalk f x)) identity (f form)))
+
 (defn simplify-expression [expression]
-  (let [[alts (run* [q]
-                    (rules/arithmeticᵒ (list expression) q))]]
-    (if (empty? alts)
-      expression
-      (first alts))))
+  (if (iterable? expression)
+    (let [[alts (run* [q]
+                      (rules/arithmeticᵒ (list expression) q))]]
+      (if (empty? alts)
+        expression
+        (first alts)))
+    expression))
+
+(defn simplify [expr]
+  (setv new-expr (prewalk simplify-expression expr))
+  (while true
+    (setv res (prewalk simplify-expression new-expr))
+    (when (= res new-expr)
+      (break))
+    (setv new-expr res))
+  new-expr)
