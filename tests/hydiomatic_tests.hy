@@ -27,8 +27,8 @@
              '(dec 3))))
 
 (defn test-simplification-arith-times []
-  (assert (= (simplify-expression '(* 1 (* 2 3)))
-             '(* 1 2 3))))
+  (assert (= (simplify-expression '(* 2 (* 3 4)))
+             '(* 2 3 4))))
 
 (defn test-simplification-arith-many-plus []
   (assert (= (simplify-expression '(+ 1 (+ 2 3)))
@@ -45,6 +45,12 @@
              '1))
   (assert (= (simplify-expression '(+ 1 0))
              '1)))
+
+(defn test-simplification-arith-times-one []
+  (assert (= (simplify-expression '(* 1 2))
+             '2))
+  (assert (= (simplify-expression '(* 2 1))
+             '2)))
 
 (defn test-simplify []
   (assert (= (simplify '(do (+ 1 (+ 1))))
