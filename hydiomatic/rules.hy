@@ -85,7 +85,15 @@
             [(≡ op 'when)]
             [(≡ op 'unless)])
            (≡ expr `(~op ~test (do . ~body)))
-           (≡ out `(~op ~test . ~body)))]))
+           (≡ out `(~op ~test . ~body)))]
+   ;; (if test a) => (when test a)
+   ;; (if-not test a) => (unless test a)
+   [(fresh [op new-op test branch]
+           (condᵉ
+            [(≡ op 'if) (≡ new-op 'when)]
+            [(≡ op 'if-not) (≡ new-op 'unless)])
+           (≡ expr `(~op ~test ~branch))
+           (≡ out `(~new-op ~test ~branch)))]))
 
 (defn-alias [rules/equalityᵒ rules/equalityo] [expr out]
   (condᵉ

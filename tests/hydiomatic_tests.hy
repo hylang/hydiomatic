@@ -56,7 +56,13 @@
   (assert (= (simplify-expression '(unless true (do stuff)))
              '(unless true stuff)))
   (assert (= (simplify-expression '(if (not true) a b))
-             '(if-not true a b))))
+             '(if-not true a b)))
+  (assert (= (simplify-expression '(if (not true) a))
+             '(if-not true a)))
+  (assert (= (simplify-expression '(if-not true a))
+             '(unless true a)))
+  (assert (= (simplify-expression '(if true a))
+             '(when true a))))
 
 (defn test-simplification-equalityo []
   (assert (= (simplify-expression '(= 0 x))
