@@ -64,6 +64,10 @@
    [(fresh [test no-branch]
            (≡ expr `(if ~test nil ~no-branch))
            (≡ out `(unless ~test ~no-branch)))]
+   ;; (if (not test) a b) => (if-not test a b)
+   [(fresh [test branches]
+           (≡ expr `(if (not ~test) . ~branches))
+           (≡ out `(if-not ~test . ~branches)))]
    ;; (if test (do y)) => (when test y)
    [(fresh [test y]
            (≡ expr `(if ~test (do . ~y)))
