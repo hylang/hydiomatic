@@ -17,7 +17,7 @@
 (import [adderall.dsl [*]])
 (require adderall.dsl)
 
-(defn-alias [rules/arithmeticᵒ rules/arithmetico] [expression out]
+(defn-alias [rules/arithmeticᵒ rules/arithmetico] [expr out]
   (condᵉ
    ;; (+ 0 x), (+ x 0) => x
    ;; (* 1 x), (* x 1) => x
@@ -26,8 +26,8 @@
             [(≡ op '+) (≡ zero 0)]
             [(≡ op '*) (≡ zero 1)])
            (condᵉ
-            [(≡ expression `(~op ~zero ~x))]
-            [(≡ expression `(~op ~x ~zero))])
+            [(≡ expr `(~op ~zero ~x))]
+            [(≡ expr `(~op ~x ~zero))])
            (≡ out `~x))]
    ;; (+ x (+ ...)) => (+ x ...)
    ;; (* x (* ...)) => (* x ...)
@@ -35,15 +35,15 @@
            (condᵉ
             [(≡ op '+)]
             [(≡ op '*)])
-           (≡ expression `(~op ~x (~op . ~xs)))
+           (≡ expr `(~op ~x (~op . ~xs)))
            (≡ out `(~op ~x . ~xs)))]
    ;; (+ x 1), (+ 1 x) => (inc x)
    [(fresh [x]
            (condᵉ
-            [(≡ expression `(+ ~x 1))]
-            [(≡ expression `(+ 1 ~x))])
+            [(≡ expr `(+ ~x 1))]
+            [(≡ expr `(+ 1 ~x))])
            (≡ out `(inc ~x)))]
    ;; (- x 1) => (dec x)
    [(fresh [x]
-           (≡ expression `(- ~x 1))
+           (≡ expr `(- ~x 1))
            (≡ out `(dec ~x)))]))
