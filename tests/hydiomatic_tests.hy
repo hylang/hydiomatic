@@ -46,6 +46,10 @@
   (assert (= (simplify-expression '(* 2 1))
              '2)))
 
+(defn test-simplifyication-quote-qq-unquote []
+  (assert (= (simplify-expression '`~x)
+             'x)))
+
 (defn test-simplification-identity []
   (assert (= (simplify-expression '())
              '()))

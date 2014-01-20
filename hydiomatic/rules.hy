@@ -47,3 +47,10 @@
    [(fresh [x]
            (≡ expr `(- ~x 1))
            (≡ out `(dec ~x)))]))
+
+(defn-alias [rules/quoteᵒ rules/quoteo] [expr out]
+  (condᵉ
+   ;; `~x => x
+   [(fresh [x]
+           (≡ expr `(quasiquote (unquote ~x)))
+           (≡ out x))]))

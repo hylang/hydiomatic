@@ -34,7 +34,9 @@
 (defn simplify-expression [expression]
   (if (iterable? expression)
     (let [[alts (run* [q]
-                      (rules/arithmeticᵒ (list expression) q))]]
+                      (condᵉ
+                       [(rules/arithmeticᵒ expression q)]
+                       [(rules/quoteᵒ expression q)]))]]
       (if (empty? alts)
         expression
         (first alts)))
