@@ -81,6 +81,20 @@
   (assert (= (simplify-step '(= nil x))
              '(nil? x))))
 
+(defn test-rules-optimo []
+  (assert (= (simplify-step '(defn foo [x]
+                               (let [[y (inc x)]]
+                                 (print x y))))
+             '(defn foo [x]
+                (setv (, y) [(inc x)])
+                (print x y))))
+  (assert (= (simplify-step '(defn foo [x a &optional [foo 'bar]]
+                               (let [[y (inc x)]]
+                                 (print x y))))
+             '(defn foo [x a &optional [foo 'bar]]
+                (setv (, y) [(inc x)])
+                (print x y)))))
+
 (defn test-rules-none []
   (assert (= (simplify-step '())
              '()))

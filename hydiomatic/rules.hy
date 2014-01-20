@@ -120,9 +120,36 @@
             [(≡ expr `(= nil x))])
            (≡ out `(nil? x)))]))
 
+(defn bindings->setvᵒ [bindings syms vals]
+  (condᵉ
+   [(emptyᵒ bindings) (≡ syms '()) (≡ vals [])]
+   [(fresh [b rs sym var xsyms xvals]
+           (firstᵒ bindings b)
+           (restᵒ bindings rs)
+
+           (consᵒ sym [var] b)
+           (bindings->setvᵒ rs xsyms xvals)
+
+           (appendᵒ [sym] xsyms syms)
+           (appendᵒ [var] xvals vals))]))
+
+(defn-alias [rules/optimᵒ rules/optimo] [expr out]
+  (condᵉ
+   ;; (defn foo [x] (let [[y (inc x)]] ...))
+   ;;  => (defn foo [x] (setv y (inc x)) ...)
+   [(fresh [outer inner fname params bindings body syms vars]
+           (≡ expr `(defn ~fname ~params ~inner))
+           (≡ inner `(let ~bindings
+                       ~body))
+           (bindings->setvᵒ bindings syms vars)
+           (≡ out `(defn ~fname ~params
+                     (setv (, . ~syms) ~vars)
+                     ~body)))]))
+
 (defn rules/default [expr q]
   (condᵉ
    [(rules/arithmeticᵒ expr q)]
    [(rules/quoteᵒ expr q)]
    [(rules/control-structᵒ expr q)]
-   [(rules/equalityᵒ expr q)]))
+   [(rules/equalityᵒ expr q)]
+   [(rules/optimᵒ expr q)]))
