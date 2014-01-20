@@ -65,7 +65,7 @@
   (assert (= (simplify-step '(if true a))
              '(when true a))))
 
-(defn test-simplification-equalityo []
+(defn test-rules-equalityo []
   (assert (= (simplify-step '(= 0 x))
              '(zero? x)))
   (assert (= (simplify-step '(= x 0))
