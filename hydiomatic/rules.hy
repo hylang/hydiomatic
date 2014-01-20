@@ -53,3 +53,32 @@
    [(fresh [x]
            (≡ expr `(quasiquote (unquote ~x)))
            (≡ out x))]))
+
+(defn-alias [rules/control-structᵒ rules/control-structo] [expr out]
+  (condᵉ
+   ;; (if test y nil) => (when test y)
+   [(fresh [test yes-branch]
+           (≡ expr `(if ~test ~yes-branch nil))
+           (≡ out `(when ~test ~yes-branch)))]
+   ;; (if test nil n) => (unless test n)
+   [(fresh [test no-branch]
+           (≡ expr `(if ~test nil ~no-branch))
+           (≡ out `(unless ~test ~no-branch)))]
+   ;; (if test (do y)) => (when test y)
+   [(fresh [test y]
+           (≡ expr `(if ~test (do . ~y)))
+           (≡ out `(when ~test . ~y)))]
+   ;; (when (not test) stuff) => (unless test stuff)
+   [(fresh [test body]
+           (≡ expr `(when (not ~test) . ~body))
+           (≡ out `(unless ~test . ~body)))]
+   ;; (do x) => x
+   [(≡ expr `(do ~out))]
+   ;; (when test (do x)) => (when test x)
+   ;; (unless test (do x)) => (unless test x)
+   [(fresh [op test body]
+           (condᵉ
+            [(≡ op 'when)]
+            [(≡ op 'unless)])
+           (≡ expr `(~op ~test (do . ~body)))
+           (≡ out `(~op ~test . ~body)))]))

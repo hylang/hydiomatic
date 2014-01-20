@@ -38,7 +38,8 @@
     (let [[alts (run* [q]
                       (condᵉ
                        [(rules/arithmeticᵒ expression q)]
-                       [(rules/quoteᵒ expression q)]))]]
+                       [(rules/quoteᵒ expression q)]
+                       [(rules/control-structᵒ expression q)]))]]
       (if (empty? alts)
         expression
         (first alts)))

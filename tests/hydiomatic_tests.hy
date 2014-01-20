@@ -50,6 +50,23 @@
   (assert (= (simplify-expression '`~x)
              'x)))
 
+(defn test-simplification-control-structo []
+  (assert (= (simplify-expression '(if true :yes nil))
+             '(when true :yes)))
+  (assert (= (simplify-expression '(if true nil :no))
+             '(unless true :no)))
+  (assert (= (simplify-expression '(if true (do (and this that))))
+             '(when true (and this that))))
+  (assert (= (simplify-expression '(when (not true) :hello))
+             '(unless true :hello)))
+  (assert (= (simplify-expression '(do something))
+             'something))
+  (assert (= (simplify-expression '(when true (do stuff)))
+             '(when true stuff)))
+  (assert (= (simplify-expression '(unless true (do stuff)))
+             '(unless true stuff)))
+  )
+
 (defn test-simplification-identity []
   (assert (= (simplify-expression '())
              '()))
@@ -57,11 +74,13 @@
              '(inc 2))))
 
 (defn test-simplify []
-  (assert (= (simplify '(do (+ 1 (+ 1))))
-             '(do (inc 1))))
+  (assert (= (simplify '(something (+ 1 (+ 1))))
+             '(something (inc 1))))
   (assert (= (simplify '(* 2 (* 3 (+ 5 (+ 1)))))
              '(* 2 3 (inc 5))))
   (assert (= (simplify '(* a (* b (+ c (+ 1)))))
              '(* a b (inc c))))
   (assert (= (simplify '[a b (+ 2 1) `~x])
-             '[a b (inc 2) x])))
+             '[a b (inc 2) x]))
+  (assert (= (simplify '(if true (do this) (do that)))
+             '(if true this that))))
