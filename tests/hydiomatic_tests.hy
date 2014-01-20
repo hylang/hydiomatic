@@ -34,12 +34,6 @@
   (assert (= (simplify-expression '(+ 1 (+ 2 3)))
              '(+ 1 2 3))))
 
-(defn test-simplification-identity []
-  (assert (= (simplify-expression '())
-             '()))
-  (assert (= (simplify-expression '(inc 2))
-             '(inc 2))))
-
 (defn test-simplification-arith-plus-zero []
   (assert (= (simplify-expression '(+ 0 1))
              '1))
@@ -51,6 +45,12 @@
              '2))
   (assert (= (simplify-expression '(* 2 1))
              '2)))
+
+(defn test-simplification-identity []
+  (assert (= (simplify-expression '())
+             '()))
+  (assert (= (simplify-expression '(inc 2))
+             '(inc 2))))
 
 (defn test-simplify []
   (assert (= (simplify '(do (+ 1 (+ 1))))
