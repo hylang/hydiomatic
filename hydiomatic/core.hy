@@ -39,7 +39,8 @@
                       (condᵉ
                        [(rules/arithmeticᵒ expression q)]
                        [(rules/quoteᵒ expression q)]
-                       [(rules/control-structᵒ expression q)]))]]
+                       [(rules/control-structᵒ expression q)]
+                       [(rules/equalityᵒ expression q)]))]]
       (if (empty? alts)
         expression
         (first alts)))

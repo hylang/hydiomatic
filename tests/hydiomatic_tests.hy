@@ -64,8 +64,23 @@
   (assert (= (simplify-expression '(when true (do stuff)))
              '(when true stuff)))
   (assert (= (simplify-expression '(unless true (do stuff)))
-             '(unless true stuff)))
-  )
+             '(unless true stuff))))
+
+(defn test-simplification-equalityo []
+  (assert (= (simplify-expression '(= 0 x))
+             '(zero? x)))
+  (assert (= (simplify-expression '(= x 0))
+             '(zero? x)))
+  (assert (= (simplify-expression '(< 0 x))
+             '(pos? x)))
+  (assert (= (simplify-expression '(> x 0))
+             '(pos? x)))
+  (assert (= (simplify-expression '(< x 0))
+             '(neg? x)))
+  (assert (= (simplify-expression '(= x nil))
+             '(nil? x)))
+  (assert (= (simplify-expression '(= nil x))
+             '(nil? x))))
 
 (defn test-simplification-identity []
   (assert (= (simplify-expression '())

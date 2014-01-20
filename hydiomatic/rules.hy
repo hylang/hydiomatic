@@ -82,3 +82,28 @@
             [(≡ op 'unless)])
            (≡ expr `(~op ~test (do . ~body)))
            (≡ out `(~op ~test . ~body)))]))
+
+(defn-alias [rules/equalityᵒ rules/equalityo] [expr out]
+  (condᵉ
+   ;; zero?
+   [(fresh [x]
+           (condᵉ
+            [(≡ expr `(= 0 ~x))]
+            [(≡ expr `(= ~x 0))])
+           (≡ out `(zero? ~x)))]
+   ;; pos?
+   [(fresh [x]
+           (condᵉ
+            [(≡ expr `(< 0 ~x))]
+            [(≡ expr `(> ~x 0))])
+           (≡ out `(pos? ~x)))]
+   ;; neg?
+   [(fresh [x]
+           (≡ expr `(< ~x 0))
+           (≡ out `(neg? ~x)))]
+   ;; nil?
+   [(fresh [x]
+           (condᵉ
+            [(≡ expr `(= ~x nil))]
+            [(≡ expr `(= nil x))])
+           (≡ out `(nil? x)))]))
