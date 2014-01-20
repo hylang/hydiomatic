@@ -14,12 +14,14 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hy [HyExpression HySymbol HyInteger HyString]])
+(import [hy [HyExpression HySymbol HyInteger HyString HyDict]])
 
 (defn walk [inner outer form]
   (cond
    [(isinstance form HyExpression)
     (outer (HyExpression (map inner form)))]
+   [(isinstance form HyDict)
+    (HyDict (outer (HyExpression (map inner form))))]
    [(isinstance form list)
     (list (outer (HyExpression (map inner form))))]
    [true (outer form)]))
@@ -39,8 +41,8 @@
     (str form)]
    [(isinstance form HyString)
     (str (+ "\"" (str form) "\""))]
-   [(isinstance form dict)
-    nil]
+   [(isinstance form HyDict)
+    (+ "{" (.join " " (map -pprint form)) "}")]
    [(isinstance form list)
     (+ "[" (.join " " (map -pprint form)) "]")]
    [true

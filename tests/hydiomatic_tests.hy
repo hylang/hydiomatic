@@ -14,7 +14,8 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hydiomatic.core [*]])
+(import [hydiomatic.core [*]]
+        [hy [HyDict]])
 
 (defn test-rules-arithmetico []
   (assert (= (simplify-step '(+ 2 1))
@@ -96,4 +97,10 @@
   (assert (= (simplify '[a b (+ 2 1) `~x])
              '[a b (inc 2) x]))
   (assert (= (simplify '(if true (do this) (do that)))
-             '(if true this that))))
+             '(if true this that)))
+  (assert (= (simplify '{"foo" "bar"})
+             '{"foo" "bar"}))
+  (assert (= (type (simplify '{"foo" "bar"}))
+             HyDict))
+  (assert (= (simplify '(def a {"foo" (+ 1 1)}))
+             '(def a {"foo" (inc 1)}))))
