@@ -14,7 +14,7 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hy [HyExpression]])
+(import [hy [HyExpression HySymbol HyInteger HyString]])
 
 (defn walk [inner outer form]
   (cond
@@ -28,3 +28,25 @@
 
 (defn prewalk [f form]
   (walk (fn [x] (prewalk f x)) identity (f form)))
+
+(defn -pprint [form]
+  (cond
+   [(isinstance form HyExpression)
+    (+ "(" (.join " " (map -pprint form)) ")")]
+   [(isinstance form HySymbol)
+    (str form)]
+   [(isinstance form HyInteger)
+    (str form)]
+   [(isinstance form HyString)
+    (str (+ "\"" (str form) "\""))]
+   [(isinstance form dict)
+    nil]
+   [(isinstance form list)
+    (+ "[" (.join " " (map -pprint form)) "]")]
+   [true
+    nil]))
+
+(defn hypprint [form &optional [outermost false]]
+  (if outermost
+    (map hypprint form)
+    (print (-pprint form))))

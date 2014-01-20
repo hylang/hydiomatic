@@ -8,6 +8,8 @@ from hydiomatic.core import simplify
 from hy.cmdline import HyREPL
 from hy.completer import completion
 
+from hydiomatic.utils import hypprint
+
 parser = argparse.ArgumentParser(
     prog="hydiomatic",
     usage="%(prog)s [options] FILE",
@@ -32,4 +34,4 @@ if options.repl:
         ))
 else:
     hst = import_file_to_hst(options.args[0])
-    print (simplify(hst))
+    hypprint (simplify(hst), outermost=True)
