@@ -14,29 +14,17 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [adderall.dsl [*]]
-        [hydiomatic.rules [*]]
-        [hydiomatic.utils [*]])
-(require adderall.dsl)
+(import [hy [HyExpression]])
 
-(defn simplify-step [expr]
-  (if (iterable? expr)
-    (let [[alts (run* [q]
-                      (condᵉ
-                       [(rules/arithmeticᵒ expr q)]
-                       [(rules/quoteᵒ expr q)]
-                       [(rules/control-structᵒ expr q)]
-                       [(rules/equalityᵒ expr q)]))]]
-      (if (empty? alts)
-        expr
-        (first alts)))
-    expr))
+(defn walk [inner outer form]
+  (cond
+   [(isinstance form HyExpression)
+    (outer (HyExpression (map inner form)))]
+   [(isinstance form list)
+    (list (outer (HyExpression (map inner form))))]
+   [true (outer form)]))
 
-(defn simplify [expr]
-  (setv new-expr (prewalk simplify-step expr))
-  (while true
-    (setv res (prewalk simplify-step new-expr))
-    (when (= res new-expr)
-      (break))
-    (setv new-expr res))
-  new-expr)
+(defn identity [f] f)
+
+(defn prewalk [f form]
+  (walk (fn [x] (prewalk f x)) identity (f form)))
