@@ -33,7 +33,7 @@
 (defn prewalk [f form]
   (walk (fn [x] (prewalk f x)) identity (f form)))
 
-(defn simplify-expression [expr]
+(defn simplify-step [expr]
   (if (iterable? expr)
     (let [[alts (run* [q]
                       (condᵉ
@@ -47,9 +47,9 @@
     expr))
 
 (defn simplify [expr]
-  (setv new-expr (prewalk simplify-expression expr))
+  (setv new-expr (prewalk simplify-step expr))
   (while true
-    (setv res (prewalk simplify-expression new-expr))
+    (setv res (prewalk simplify-step new-expr))
     (when (= res new-expr)
       (break))
     (setv new-expr res))
