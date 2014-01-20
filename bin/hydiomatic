@@ -1,2 +1,35 @@
-#! /bin/sh
-exec hy -i "(import [hydiomatic.core [*]] [hydiomatic.rules [*]])" $@
+#! /usr/bin/env python
+from __future__ import print_function
+from hy.importer import (import_file_to_hst)
+import argparse
+import sys
+import hy
+from hydiomatic.core import simplify
+from hy.cmdline import HyREPL
+from hy.completer import completion
+
+parser = argparse.ArgumentParser(
+    prog="hydiomatic",
+    usage="%(prog)s [options] FILE",
+    formatter_class=argparse.RawDescriptionHelpFormatter)
+
+parser.add_argument("--repl", "-r", action="store_true",
+                    help="Launch a REPL instead of simplifying a file")
+parser.add_argument("args", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
+
+options = parser.parse_args(sys.argv[1:])
+
+if options.repl:
+    sys.ps1 = ";=> "
+    sys.ps2 = "    "
+
+    with completion():
+        hr = HyREPL()
+        hr.runsource("(import [hydiomatic.core [*]] [hydiomatic.rules [*]])")
+
+        hr.interact("{appname}".format(
+            appname="hydiomatic"
+        ))
+else:
+    hst = import_file_to_hst(options.args[0])
+    print (simplify(hst))
