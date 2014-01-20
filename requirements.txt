@@ -1,0 +1,3 @@
+monaxhyd>=0.1.0
+-e git://github.com/algernon/hy.git@sandbox/adderall#egg=hy
+-e git://github.com/algernon/adderall.git@master#egg=adderall
