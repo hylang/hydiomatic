@@ -16,41 +16,31 @@
 
 (import [hydiomatic.core [*]])
 
-(defn test-simplification-arith-inc []
+(defn test-rules-arithmetico []
   (assert (= (simplify-expression '(+ 2 1))
              '(inc 2)))
   (assert (= (simplify-expression '(+ 1 2))
-             '(inc 2))))
-
-(defn test-simplification-arith-dec []
+             '(inc 2)))
   (assert (= (simplify-expression '(- 3 1))
-             '(dec 3))))
-
-(defn test-simplification-arith-times []
+             '(dec 3)))
   (assert (= (simplify-expression '(* 2 (* 3 4)))
-             '(* 2 3 4))))
-
-(defn test-simplification-arith-many-plus []
+             '(* 2 3 4)))
   (assert (= (simplify-expression '(+ 1 (+ 2 3)))
-             '(+ 1 2 3))))
-
-(defn test-simplification-arith-plus-zero []
+             '(+ 1 2 3)))
   (assert (= (simplify-expression '(+ 0 1))
              '1))
   (assert (= (simplify-expression '(+ 1 0))
-             '1)))
-
-(defn test-simplification-arith-times-one []
+             '1))
   (assert (= (simplify-expression '(* 1 2))
              '2))
   (assert (= (simplify-expression '(* 2 1))
              '2)))
 
-(defn test-simplifyication-quote-qq-unquote []
+(defn test-rules-quoteo []
   (assert (= (simplify-expression '`~x)
              'x)))
 
-(defn test-simplification-control-structo []
+(defn test-rules-control-structo []
   (assert (= (simplify-expression '(if true :yes nil))
              '(when true :yes)))
   (assert (= (simplify-expression '(if true nil :no))
@@ -82,7 +72,7 @@
   (assert (= (simplify-expression '(= nil x))
              '(nil? x))))
 
-(defn test-simplification-identity []
+(defn test-rules-none []
   (assert (= (simplify-expression '())
              '()))
   (assert (= (simplify-expression '(inc 2))
