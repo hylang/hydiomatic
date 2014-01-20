@@ -16,8 +16,7 @@
 
 (import [adderall.dsl [*]]
         [hydiomatic.rules [*]]
-        [hy [HyExpression]]
-        [functools [partial]])
+        [hy [HyExpression]])
 (require adderall.dsl)
 
 (defn walk [inner outer form]
