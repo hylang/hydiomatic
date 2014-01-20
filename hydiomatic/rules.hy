@@ -21,12 +21,13 @@
   (condᵉ
    ;; (+ 0 x), (+ x 0) => x
    ;; (* 1 x), (* x 1) => x
-   [(fresh [x]
+   [(fresh [op zero x]
            (condᵉ
-            [(≡ expression `(+ 0 ~x))]
-            [(≡ expression `(+ ~x 0))]
-            [(≡ expression `(* 1 ~x))]
-            [(≡ expression `(* ~x 1))])
+            [(≡ op '+) (≡ zero 0)]
+            [(≡ op '*) (≡ zero 1)])
+           (condᵉ
+            [(≡ expression `(~op ~zero ~x))]
+            [(≡ expression `(~op ~x ~zero))])
            (≡ out `~x))]
    ;; (+ x (+ ...)) => (+ x ...)
    ;; (* x (* ...)) => (* x ...)
