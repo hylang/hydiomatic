@@ -119,3 +119,10 @@
             [(≡ expr `(= ~x nil))]
             [(≡ expr `(= nil x))])
            (≡ out `(nil? x)))]))
+
+(defn rules/default [expr q]
+  (condᵉ
+   [(rules/arithmeticᵒ expr q)]
+   [(rules/quoteᵒ expr q)]
+   [(rules/control-structᵒ expr q)]
+   [(rules/equalityᵒ expr q)]))

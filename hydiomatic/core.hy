@@ -19,23 +19,18 @@
         [hydiomatic.utils [*]])
 (require adderall.dsl)
 
-(defn simplify-step [expr]
+(defn simplify-step [expr &optional [rules rules/default]]
   (if (iterable? expr)
-    (let [[alts (run* [q]
-                      (condᵉ
-                       [(rules/arithmeticᵒ expr q)]
-                       [(rules/quoteᵒ expr q)]
-                       [(rules/control-structᵒ expr q)]
-                       [(rules/equalityᵒ expr q)]))]]
+    (let [[alts (run* [q] (rules expr q))]]
       (if (empty? alts)
         expr
         (first alts)))
     expr))
 
-(defn simplify [expr]
-  (setv new-expr (prewalk simplify-step expr))
+(defn simplify [expr &optional [rules rules/default]]
+  (setv new-expr (prewalk (fn [x] (simplify-step x rules)) expr))
   (while true
-    (setv res (prewalk simplify-step new-expr))
+    (setv res (prewalk (fn [x] (simplify-step x rules)) new-expr))
     (when (= res new-expr)
       (break))
     (setv new-expr res))
