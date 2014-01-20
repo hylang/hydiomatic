@@ -62,4 +62,6 @@
   (assert (= (simplify '(* 2 (* 3 (+ 5 (+ 1)))))
              '(* 2 3 (inc 5))))
   (assert (= (simplify '(* a (* b (+ c (+ 1)))))
-             '(* a b (inc c)))))
+             '(* a b (inc c))))
+  (assert (= (simplify '[a b (+ 2 1) `~x])
+             '[a b (inc 2) x])))
