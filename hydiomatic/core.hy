@@ -33,18 +33,18 @@
 (defn prewalk [f form]
   (walk (fn [x] (prewalk f x)) identity (f form)))
 
-(defn simplify-expression [expression]
-  (if (iterable? expression)
+(defn simplify-expression [expr]
+  (if (iterable? expr)
     (let [[alts (run* [q]
                       (condᵉ
-                       [(rules/arithmeticᵒ expression q)]
-                       [(rules/quoteᵒ expression q)]
-                       [(rules/control-structᵒ expression q)]
-                       [(rules/equalityᵒ expression q)]))]]
+                       [(rules/arithmeticᵒ expr q)]
+                       [(rules/quoteᵒ expr q)]
+                       [(rules/control-structᵒ expr q)]
+                       [(rules/equalityᵒ expr q)]))]]
       (if (empty? alts)
-        expression
+        expr
         (first alts)))
-    expression))
+    expr))
 
 (defn simplify [expr]
   (setv new-expr (prewalk simplify-expression expr))
