@@ -28,7 +28,7 @@
            (condᵉ
             [(≡ expr `(~op ~zero ~x))]
             [(≡ expr `(~op ~x ~zero))])
-           (≡ out `~x))]
+           (≡ out x))]
    ;; (+ x (+ ...)) => (+ x ...)
    ;; (* x (* ...)) => (* x ...)
    [(fresh [op x xs]
