@@ -13,12 +13,14 @@ but it can already perform interesting transformations.
 Installation
 ------------
 
-Hydiomatic depends on [adderall](https://github.com/adderall), and can
-be installed the usual way with `pip`:
+Hydiomatic depends on [adderall][adderall], and can be installed the
+usual way with `pip`:
 
 ```shell
 $ pip install -r requirements.txt
 ```
+
+ [adderall]: https://github.com/algernon/adderall
 
 Usage
 -----
