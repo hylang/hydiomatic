@@ -16,16 +16,17 @@
 
 (import [adderall.dsl [*]]
         [hydiomatic.rules [*]]
-        [hydiomatic.utils [*]])
+        [hydiomatic.utils [*]]
+        [hy.macros [_wrap_value]])
 (require adderall.dsl)
 
 (defn simplify-step [expr &optional [rules rules/default]]
   (if (iterable? expr)
     (let [[alts (run* [q] (rules expr q))]]
       (if (empty? alts)
-        expr
-        (first alts)))
-    expr))
+        (_wrap_value expr)
+        (_wrap_value (first alts))))
+    (_wrap_value expr)))
 
 (defn simplify [expr &optional [rules rules/default]]
   (setv new-expr (prewalk (fn [x] (simplify-step x rules)) expr))
@@ -34,4 +35,4 @@
     (when (= res new-expr)
       (break))
     (setv new-expr res))
-  new-expr)
+  (_wrap_value new-expr))
