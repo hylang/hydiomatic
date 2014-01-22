@@ -128,24 +128,10 @@
   (assert (= (simplify-step '(for* [x coll] (yield x)))
              '(yield-from coll)))
 
-  (assert (= (simplify-step '(a (b c)))
-             '(a (b c))))
-  (assert (= (simplify-step '(a (b (c d))))
-             '(-> d c b a)))
-  (assert (= (simplify-step '(a (b (c (d e)))))
-             '(-> (d e) c b a)))
-  (assert (= (simplify-step '(-> (d e) c b a))
-             '(-> e d c b a)))
   (assert (= (simplify-step '(-> (-> a b) c d))
              '(-> a b c d)))
-  (assert (= (simplify-step '(-> (a b) c))
-             '(-> b a c)))
-  (assert (= (simplify-step '(-> [a b] c))
-             '(c [a b])))
   (assert (= (simplify-step '(-> a))
-             'a))
-  (assert (= (simplify-step '(-> a b))
-             '(b a))))
+             'a)))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]

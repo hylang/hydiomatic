@@ -181,15 +181,6 @@
            (≡ out `(yield-from ~iteratable)))]
    ;; (-> a) => a
    [(≡ expr `(-> ~out))]
-   ;; (a (b (c d))) => (-> d c b a)
-   [(fresh [a b c d inner1 inner2]
-           (≡ expr `(~a (~b (~c ~d))))
-           (≡ expr `(~a (~b ~inner1)))
-           (≡ expr `(~a ~inner2))
-           (typeᵒ inner1 HyExpression)
-           (typeᵒ inner2 HyExpression)
-           (typeᵒ expr HyExpression)
-           (≡ out `(-> ~d ~c ~b ~a)))]
    ;; (-> (-> x) y) => (-> x y)
    [(fresh [inner x y o]
            (≡ expr `(-> ~inner . ~y))
@@ -198,17 +189,7 @@
            (typeᵒ inner HyExpression)
            (typeᵒ x HyExpression)
            (typeᵒ y HyExpression)
-           (appendᵒ o y out))]
-   ;; (-> (a b) c) => (-> b a c)
-   [(fresh [inner a b c]
-           (≡ expr `(-> ~inner . ~c))
-           (typeᵒ inner HyExpression)
-           (≡ inner `(~a ~b))
-           (≡ out `(-> ~b ~a . ~c)))]
-   ;; (-> a b) => (b a)
-   [(fresh [a b]
-           (≡ expr `(-> ~a ~b))
-           (≡ out `(~b ~a)))]))
+           (appendᵒ o y out))]))
 
 (eval-and-compile
  (defn --transform-bindings [bindings body]
