@@ -95,6 +95,14 @@
 
 (defn-alias [rules/equalityᵒ rules/equalityo] [expr out]
   (condᵉ
+   ;; (= (% n 2) 0) => (even? n)
+   ;; (= (% n 2) 1) => (odd? n)
+   [(fresh [n r op]
+           (≡ expr `(= (% ~n 2) ~r))
+           (condᵉ
+            [(≡ r 0) (≡ op 'even?)]
+            [(≡ r 1) (≡ op 'odd?)])
+           (≡ out `(~op ~n)))]
    ;; zero?
    [(fresh [x]
            (condᵉ
