@@ -145,14 +145,13 @@
                     (≡ out `(defn ~fname ~(HyList params) . ~body))))]
    ;; (defn foo [x] (let [[y (inc x)]] ...))
    ;;  => (defn foo [x] (setv y (inc x)) ...)
-   [(fresh [outer inner fname params bindings body syms vars]
-           (≡ expr `(defn ~fname ~params ~inner))
-           (≡ inner `(let ~bindings
-                       ~body))
+   [(fresh [fname params bindings body syms vars]
+           (≡ expr `(defn ~fname ~params
+                      (let ~bindings . ~body)))
            (bindings->setvᵒ bindings syms vars)
            (≡ out `(defn ~fname ~params
                      (setv (, . ~syms) ~vars)
-                     ~body)))]))
+                     . ~body)))]))
 
 (defn rules/default [expr q]
   (condᵉ
