@@ -127,7 +127,15 @@
    ;; (slice x 1) => (rest x)
    [(fresh [x]
            (≡ expr `(slice ~x 1))
-           (≡ out `(rest ~x)))]))
+           (≡ out `(rest ~x)))]
+   ;; (= (len x) 0), (= 0 (len x)), (zero? (len x))
+   ;;  => (empty? x)
+   [(fresh [x]
+           (condᵉ
+            [(≡ expr `(= (len ~x) 0))]
+            [(≡ expr `(= 0 (len ~x)))]
+            [(≡ expr `(zero? (len ~x)))])
+           (≡ out `(empty? ~x)))]))
 
 (defn-alias [rules/syntaxᵒ rules/syntaxo] [expr out]
   (condᵉ

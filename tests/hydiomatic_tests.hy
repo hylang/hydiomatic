@@ -83,7 +83,13 @@
 
 (defn test-rules-collectiono []
   (assert (= (simplify-step '(get coll 0))
-             '(first coll))))
+             '(first coll)))
+  (assert (= (simplify-step '(slice coll 1))
+             '(rest coll)))
+  (assert (= (simplify-step '(slice coll 2))
+             '(slice coll 2)))
+  (assert (= (simplify-step '(zero? (len coll)))
+             '(empty? coll))))
 
 (defn test-rules-syntaxo []
   (assert (= (simplify-step '(defn foo (a b c) (+ a b c)))
@@ -165,4 +171,6 @@
   (assert (= (type (simplify '{"foo" "bar"}))
              HyDict))
   (assert (= (simplify '(def a {"foo" (+ 1 1)}))
-             '(def a {"foo" (inc 1)}))))
+             '(def a {"foo" (inc 1)})))
+  (assert (= (simplify '(= (len coll) 0))
+             '(empty? coll))))
