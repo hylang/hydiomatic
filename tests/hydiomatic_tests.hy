@@ -123,7 +123,10 @@
   (assert (= (simplify-step '(instance? str x))
              '(string? x)))
   (assert (= (simplify-step '(instance? unicode x))
-             '(string? x))))
+             '(string? x)))
+
+  (assert (= (simplify-step '(for* [x coll] (yield x)))
+             '(yield-form coll))))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]
