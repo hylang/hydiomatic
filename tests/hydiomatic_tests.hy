@@ -83,7 +83,9 @@
   (assert (= (simplify-step '(= (% n 2) 0))
              '(even? n)))
   (assert (= (simplify-step '(= (% n 2) 1))
-             '(odd? n))))
+             '(odd? n)))
+  (assert (= (simplify-step '(none? n))
+             '(nil? n))))
 
 (defn test-rules-collectiono []
   (assert (= (simplify-step '(get coll 0))

@@ -124,7 +124,11 @@
            (condᵉ
             [(≡ expr `(= ~x nil))]
             [(≡ expr `(= nil x))])
-           (≡ out `(nil? x)))]))
+           (≡ out `(nil? x)))]
+   ;; none? => nil?
+   [(fresh [x]
+           (≡ expr `(none? ~x))
+           (≡ out `(nil? ~x)))]))
 
 (defn-alias [rules/collectionᵒ rules/collectiono] [expr out]
   (condᵉ
