@@ -33,9 +33,7 @@
    ;; (+ x (+ ...)) => (+ x ...)
    ;; (* x (* ...)) => (* x ...)
    [(fresh [op x xs]
-           (condᵉ
-            [(≡ op '+)]
-            [(≡ op '*)])
+           (memberᵒ op `[+ *])
            (≡ expr `(~op ~x (~op . ~xs)))
            (≡ out `(~op ~x . ~xs)))]
    ;; (+ x 1), (+ 1 x) => (inc x)
@@ -83,9 +81,7 @@
    ;; (when test (do x)) => (when test x)
    ;; (unless test (do x)) => (unless test x)
    [(fresh [op test body]
-           (condᵉ
-            [(≡ op 'when)]
-            [(≡ op 'unless)])
+           (memberᵒ op `[when unless])
            (≡ expr `(~op ~test (do . ~body)))
            (≡ out `(~op ~test . ~body)))]
    ;; (if test a) => (when test a)
