@@ -47,13 +47,6 @@
            (≡ expr `(- ~x 1))
            (≡ out `(dec ~x)))]))
 
-(defn-alias [rules/collectionᵒ rules/collectiono] [expr out]
-  (condᵉ
-   ;; (get x 0) => (first x)
-   [(fresh [x]
-           (≡ expr `(get ~x 0))
-           (≡ out `(first ~x)))]))
-
 (defn-alias [rules/quoteᵒ rules/quoteo] [expr out]
   (condᵉ
    ;; `~x => x
@@ -124,6 +117,13 @@
             [(≡ expr `(= ~x nil))]
             [(≡ expr `(= nil x))])
            (≡ out `(nil? x)))]))
+
+(defn-alias [rules/collectionᵒ rules/collectiono] [expr out]
+  (condᵉ
+   ;; (get x 0) => (first x)
+   [(fresh [x]
+           (≡ expr `(get ~x 0))
+           (≡ out `(first ~x)))]))
 
 (defn-alias [rules/syntaxᵒ rules/syntaxo] [expr out]
   (condᵉ
