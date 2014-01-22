@@ -123,7 +123,11 @@
    ;; (get x 0) => (first x)
    [(fresh [x]
            (≡ expr `(get ~x 0))
-           (≡ out `(first ~x)))]))
+           (≡ out `(first ~x)))]
+   ;; (slice x 1) => (rest x)
+   [(fresh [x]
+           (≡ expr `(slice ~x 1))
+           (≡ out `(rest ~x)))]))
 
 (defn-alias [rules/syntaxᵒ rules/syntaxo] [expr out]
   (condᵉ
