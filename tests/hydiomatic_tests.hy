@@ -81,6 +81,23 @@
   (assert (= (simplify-step '(= nil x))
              '(nil? x))))
 
+(defn test-rules-syntaxo []
+  (assert (= (simplify-step '(defn foo (a b c) (+ a b c)))
+             '(defn foo [a b c]
+                (+ a b c))))
+  (let [[alt (simplify-step '(defn foo (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defun foo (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defn-alias [foo bar] (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList))))
+
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]
                                (let [[y (inc x)]]
@@ -120,22 +137,7 @@
                 (setv y (inc x))
                 (setv z (inc y))
                 (print x y)
-                (+ x y z))))
-  (assert (= (simplify-step '(defn foo (a b c) (+ a b c)))
-             '(defn foo [a b c]
-                (+ a b c))))
-  (let [[alt (simplify-step '(defn foo (a b c) (+ a b c)))]]
-    (assert (= (type (get alt 2))
-               HyList)))
-  (let [[alt (simplify-step '(defun foo (a b c) (+ a b c)))]]
-    (assert (= (type (get alt 2))
-               HyList)))
-  (let [[alt (simplify-step '(defn-alias [foo bar] (a b c) (+ a b c)))]]
-    (assert (= (type (get alt 2))
-               HyList)))
-  (let [[alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]]
-    (assert (= (type (get alt 2))
-               HyList))))
+                (+ x y z)))))
 
 (defn test-rules-none []
   (assert (= (simplify-step '())

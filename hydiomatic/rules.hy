@@ -122,12 +122,7 @@
             [(≡ expr `(= nil x))])
            (≡ out `(nil? x)))]))
 
-(eval-and-compile
- (defn --transform-bindings [bindings body]
-   (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
-         (+ new-bindings body))))
-
-(defn-alias [rules/optimᵒ rules/optimo] [expr out]
+(defn-alias [rules/syntaxᵒ rules/syntaxo] [expr out]
   (condᵉ
    ;; (defn foo (x) ...) => (defn foo [x] ...)
    [(fresh [op fname params body]
@@ -135,7 +130,15 @@
            (≡ expr `(~op ~fname ~params . ~body))
            (typeᵒ params HyExpression)
            (project [params]
-                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]
+                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]))
+
+(eval-and-compile
+ (defn --transform-bindings [bindings body]
+   (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
+         (+ new-bindings body))))
+
+(defn-alias [rules/optimᵒ rules/optimo] [expr out]
+  (condᵉ
    ;; (defn foo [x] (let [[y (inc x)]] ...))
    ;;  => (defn foo [x] (setv y (inc x)) ...)
    [(fresh [op fname params bindings body new-body c]
@@ -154,4 +157,5 @@
    [(rules/quoteᵒ expr q)]
    [(rules/control-structᵒ expr q)]
    [(rules/equalityᵒ expr q)]
+   [(rules/syntaxᵒ expr q)]
    [(rules/optimᵒ expr q)]))
