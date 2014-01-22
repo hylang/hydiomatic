@@ -122,18 +122,10 @@
             [(≡ expr `(= nil x))])
            (≡ out `(nil? x)))]))
 
-(defn bindings->setvᵒ [bindings syms vals]
-  (condᵉ
-   [(emptyᵒ bindings) (≡ syms '()) (≡ vals [])]
-   [(fresh [b rs sym var xsyms xvals]
-           (firstᵒ bindings b)
-           (restᵒ bindings rs)
-
-           (consᵒ sym [var] b)
-           (bindings->setvᵒ rs xsyms xvals)
-
-           (appendᵒ [sym] xsyms syms)
-           (appendᵒ [var] xvals vals))]))
+(eval-and-compile
+ (defn --transform-bindings [bindings body]
+   (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
+         (+ new-bindings body))))
 
 (defn-alias [rules/optimᵒ rules/optimo] [expr out]
   (condᵉ
@@ -145,13 +137,14 @@
                     (≡ out `(defn ~fname ~(HyList params) . ~body))))]
    ;; (defn foo [x] (let [[y (inc x)]] ...))
    ;;  => (defn foo [x] (setv y (inc x)) ...)
-   [(fresh [fname params bindings body syms vars]
+   [(fresh [fname params bindings body new-body c]
            (≡ expr `(defn ~fname ~params
                       (let ~bindings . ~body)))
-           (bindings->setvᵒ bindings syms vars)
-           (≡ out `(defn ~fname ~params
-                     (setv (, . ~syms) ~vars)
-                     . ~body)))]))
+           (project [bindings body]
+                    (≡ new-body (--transform-bindings bindings body)))
+           (≡ c `(defn ~fname ~params . ~new-body))
+           (project [c]
+                    (≡ out (HyExpression c))))]))
 
 (defn rules/default [expr q]
   (condᵉ

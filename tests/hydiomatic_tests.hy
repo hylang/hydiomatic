@@ -86,14 +86,23 @@
                                (let [[y (inc x)]]
                                  (print x y))))
              '(defn foo [x]
-                (setv (, y) [(inc x)])
+                (setv y (inc x))
                 (print x y))))
   (assert (= (simplify-step '(defn foo [x a &optional [foo 'bar]]
                                (let [[y (inc x)]]
                                  (print x y))))
              '(defn foo [x a &optional [foo 'bar]]
-                (setv (, y) [(inc x)])
+                (setv y (inc x))
                 (print x y))))
+  (assert (= (simplify-step '(defn foo [x]
+                               (let [[y (inc x)] [z (inc y)]]
+                                 (print x y)
+                                 (+ x y z))))
+             '(defn foo [x]
+                (setv y (inc x))
+                (setv z (inc y))
+                (print x y)
+                (+ x y z))))
   (assert (= (simplify-step '(defn foo (a b c) (+ a b c)))
              '(defn foo [a b c]
                 (+ a b c))))
