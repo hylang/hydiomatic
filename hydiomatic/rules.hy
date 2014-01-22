@@ -14,7 +14,9 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [adderall.dsl [*]])
+(import [adderall.dsl [*]]
+        [adderall.extra.misc [*]]
+        [hy [HyExpression HyList]])
 (require adderall.dsl)
 
 (defn-alias [rules/arithmeticᵒ rules/arithmetico] [expr out]
@@ -135,6 +137,12 @@
 
 (defn-alias [rules/optimᵒ rules/optimo] [expr out]
   (condᵉ
+   ;; (defn foo (x) ...) => (defn foo [x] ...)
+   [(fresh [fname params body]
+           (≡ expr `(defn ~fname ~params . ~body))
+           (typeᵒ params HyExpression)
+           (project [params]
+                    (≡ out `(defn ~fname ~(HyList params) . ~body))))]
    ;; (defn foo [x] (let [[y (inc x)]] ...))
    ;;  => (defn foo [x] (setv y (inc x)) ...)
    [(fresh [outer inner fname params bindings body syms vars]

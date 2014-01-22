@@ -93,7 +93,13 @@
                                  (print x y))))
              '(defn foo [x a &optional [foo 'bar]]
                 (setv (, y) [(inc x)])
-                (print x y)))))
+                (print x y))))
+  (assert (= (simplify-step '(defn foo (a b c) (+ a b c)))
+             '(defn foo [a b c]
+                (+ a b c))))
+  (let [[alt (simplify-step '(defn foo (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList))))
 
 (defn test-rules-none []
   (assert (= (simplify-step '())
