@@ -157,7 +157,11 @@
            (≡ expr `(~op ~fname ~params . ~body))
            (typeᵒ params HyExpression)
            (project [params]
-                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]))
+                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]
+   ;; (isinstance x klass) => (instance? klass x)
+   [(fresh [x klass]
+           (≡ expr `(isinstance ~x ~klass))
+           (≡ out `(instance? ~klass ~x)))]))
 
 (eval-and-compile
  (defn --transform-bindings [bindings body]

@@ -112,7 +112,10 @@
                HyList)))
   (let [[alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]]
     (assert (= (type (get alt 2))
-               HyList))))
+               HyList)))
+
+  (assert (= (simplify-step '(isinstance x foo))
+             '(instance? foo x))))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]
