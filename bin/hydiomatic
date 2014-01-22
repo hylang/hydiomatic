@@ -1,40 +1,44 @@
-#! /usr/bin/env python
-from __future__ import print_function
-from hy.importer import (import_file_to_hst)
-import argparse
-import sys
-import hy
-from hydiomatic.core import simplify
-from hy.cmdline import HyREPL
-from hy.completer import completion
+#! /usr/bin/env hy
+(import [hy.importer [import-file-to-hst]]
+        [argparse]
+        [sys]
+        [hy]
+        [hy.cmdline [HyREPL]]
+        [hy.completer [completion]]
+        [hydiomatic.core [simplify]]
+        [hydiomatic.utils [hypprint]])
 
-from hydiomatic.utils import hypprint
+(defn launch-repl []
+  (setv sys.ps1 ";=> ")
+  (setv sys.ps2 "    ")
 
-parser = argparse.ArgumentParser(
-    prog="hydiomatic",
-    usage="%(prog)s [options] FILE",
-    formatter_class=argparse.RawDescriptionHelpFormatter)
+  (with [[(completion)]]
+        (setv hr (HyREPL))
+        (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules[*]])")
+        (.interact hr "hydiomatic")))
 
-parser.add_argument("--repl", "-r", action="store_true",
-                    help="Launch a REPL instead of simplifying a file")
-parser.add_argument("args", nargs=argparse.REMAINDER, help=argparse.SUPPRESS)
+(defn process-file [fn]
+  (apply hypprint [(simplify (import-file-to-hst fn))]
+         {"outermost" true}))
 
-options = parser.parse_args(sys.argv[1:])
+(def parser (apply argparse.ArgumentParser []
+                   {"prog" "hydiomatic"
+                    "usage" "%(prog)s [options] FILE"
+                    "formatter_class" argparse.RawDescriptionHelpFormatter}))
 
-if options.repl:
-    sys.ps1 = ";=> "
-    sys.ps2 = "    "
+(apply parser.add_argument ["--repl" "-r"]
+       {"action" "store_true"
+        "help" "Launch a REPL instead of simplifying a file"})
+(apply parser.add_argument ["args"]
+       {"nargs" argparse.REMAINDER
+        "help" argparse.SUPPRESS})
 
-    with completion():
-        hr = HyREPL()
-        hr.runsource("(import [hydiomatic.core [*]] [hydiomatic.rules [*]])")
+(def options (.parse_args parser (rest sys.argv)))
 
-        hr.interact("{appname}".format(
-            appname="hydiomatic"
-        ))
-else:
-    if len (options.args) != 1:
-        parser.print_help()
-        sys.exit (1)
-    hst = import_file_to_hst(options.args[0])
-    hypprint (simplify(hst), outermost=True)
+(if options.repl
+  (launch-repl)
+  (do
+   (unless (= (len options.args) 1)
+     (.print_help parser)
+     (sys.exit 1))
+   (process-file (first options.args))))
