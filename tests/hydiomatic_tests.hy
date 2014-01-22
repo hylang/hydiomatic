@@ -81,6 +81,10 @@
   (assert (= (simplify-step '(= nil x))
              '(nil? x))))
 
+(defn test-rules-collectiono []
+  (assert (= (simplify-step '(get coll 0))
+             '(first coll))))
+
 (defn test-rules-syntaxo []
   (assert (= (simplify-step '(defn foo (a b c) (+ a b c)))
              '(defn foo [a b c]

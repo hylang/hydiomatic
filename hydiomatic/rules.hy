@@ -47,6 +47,13 @@
            (≡ expr `(- ~x 1))
            (≡ out `(dec ~x)))]))
 
+(defn-alias [rules/collectionᵒ rules/collectiono] [expr out]
+  (condᵉ
+   ;; (get x 0) => (first x)
+   [(fresh [x]
+           (≡ expr `(get ~x 0))
+           (≡ out `(first ~x)))]))
+
 (defn-alias [rules/quoteᵒ rules/quoteo] [expr out]
   (condᵉ
    ;; `~x => x
@@ -153,5 +160,6 @@
    [(rules/quoteᵒ expr q)]
    [(rules/control-structᵒ expr q)]
    [(rules/equalityᵒ expr q)]
+   [(rules/collectionᵒ expr q)]
    [(rules/syntaxᵒ expr q)]
    [(rules/optimᵒ expr q)]))
