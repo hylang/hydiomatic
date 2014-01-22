@@ -19,6 +19,11 @@
         [hy [HyExpression HyList]])
 (require adderall.dsl)
 
+(defmacro rule [fresh pat subst]
+  `[(fresh ~fresh
+           (≡ expr ~pat)
+           (≡ out ~subst))])
+
 (defn-alias [rules/arithmeticᵒ rules/arithmetico] [expr out]
   (condᵉ
    ;; (+ 0 x), (+ x 0) => x
