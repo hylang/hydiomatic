@@ -130,19 +130,21 @@
 (defn-alias [rules/optimᵒ rules/optimo] [expr out]
   (condᵉ
    ;; (defn foo (x) ...) => (defn foo [x] ...)
-   [(fresh [fname params body]
-           (≡ expr `(defn ~fname ~params . ~body))
+   [(fresh [op fname params body]
+           (memberᵒ op `[defn defun defn-alias defun-alias])
+           (≡ expr `(~op ~fname ~params . ~body))
            (typeᵒ params HyExpression)
            (project [params]
-                    (≡ out `(defn ~fname ~(HyList params) . ~body))))]
+                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]
    ;; (defn foo [x] (let [[y (inc x)]] ...))
    ;;  => (defn foo [x] (setv y (inc x)) ...)
-   [(fresh [fname params bindings body new-body c]
-           (≡ expr `(defn ~fname ~params
+   [(fresh [op fname params bindings body new-body c]
+           (memberᵒ op `[defn defun defn-alias defun-alias])
+           (≡ expr `(~op ~fname ~params
                       (let ~bindings . ~body)))
            (project [bindings body]
                     (≡ new-body (--transform-bindings bindings body)))
-           (≡ c `(defn ~fname ~params . ~new-body))
+           (≡ c `(~op ~fname ~params . ~new-body))
            (project [c]
                     (≡ out (HyExpression c))))]))
 

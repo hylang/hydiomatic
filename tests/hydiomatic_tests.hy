@@ -88,6 +88,24 @@
              '(defn foo [x]
                 (setv y (inc x))
                 (print x y))))
+  (assert (= (simplify-step '(defun foo [x]
+                               (let [[y (inc x)]]
+                                 (print x y))))
+             '(defun foo [x]
+                (setv y (inc x))
+                (print x y))))
+  (assert (= (simplify-step '(defn-alias [foo bar] [x]
+                               (let [[y (inc x)]]
+                                 (print x y))))
+             '(defn-alias [foo bar] [x]
+                (setv y (inc x))
+                (print x y))))
+  (assert (= (simplify-step '(defun-alias [foo bar] [x]
+                               (let [[y (inc x)]]
+                                 (print x y))))
+             '(defun-alias [foo bar] [x]
+                (setv y (inc x))
+                (print x y))))
   (assert (= (simplify-step '(defn foo [x a &optional [foo 'bar]]
                                (let [[y (inc x)]]
                                  (print x y))))
@@ -107,6 +125,15 @@
              '(defn foo [a b c]
                 (+ a b c))))
   (let [[alt (simplify-step '(defn foo (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defun foo (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defn-alias [foo bar] (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]]
     (assert (= (type (get alt 2))
                HyList))))
 
