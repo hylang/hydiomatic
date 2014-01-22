@@ -126,7 +126,7 @@
              '(string? x)))
 
   (assert (= (simplify-step '(for* [x coll] (yield x)))
-             '(yield-form coll))))
+             '(yield-from coll))))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]

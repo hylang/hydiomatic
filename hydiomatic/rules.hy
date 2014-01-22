@@ -175,10 +175,10 @@
             [(≡ klass 'unicode) (≡ alt 'string?)])
            (≡ out `(~alt ~x)))]
    ;; (for* [x iteratable] (yield x))
-   ;;  => (yield-form iteratable)
+   ;;  => (yield-from iteratable)
    [(fresh [x iteratable]
            (≡ expr `(for* [~x ~iteratable] (yield ~x)))
-           (≡ out `(yield-form ~iteratable)))]))
+           (≡ out `(yield-from ~iteratable)))]))
 
 (eval-and-compile
  (defn --transform-bindings [bindings body]
