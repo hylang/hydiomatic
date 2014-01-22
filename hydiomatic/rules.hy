@@ -136,6 +136,11 @@
    [(fresh [x]
            (≡ expr `(get ~x 0))
            (≡ out `(first ~x)))]
+   ;; (get x 1) => (second x)
+   [(fresh [x]
+           (≡ expr `(get ~x 1))
+           (≡ out `(second ~x)))]
+
    ;; (slice x 1) => (rest x)
    [(fresh [x]
            (≡ expr `(slice ~x 1))

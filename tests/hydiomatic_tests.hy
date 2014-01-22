@@ -90,6 +90,8 @@
 (defn test-rules-collectiono []
   (assert (= (simplify-step '(get coll 0))
              '(first coll)))
+  (assert (= (simplify-step '(get coll 1))
+             '(second coll)))
   (assert (= (simplify-step '(slice coll 1))
              '(rest coll)))
   (assert (= (simplify-step '(slice coll 2))
