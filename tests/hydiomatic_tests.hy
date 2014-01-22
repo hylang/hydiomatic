@@ -115,7 +115,15 @@
                HyList)))
 
   (assert (= (simplify-step '(isinstance x foo))
-             '(instance? foo x))))
+             '(instance? foo x)))
+  (assert (= (simplify-step '(instance? float x))
+             '(float? x)))
+  (assert (= (simplify-step '(instance? int x))
+             '(integer? x)))
+  (assert (= (simplify-step '(instance? str x))
+             '(string? x)))
+  (assert (= (simplify-step '(instance? unicode x))
+             '(string? x))))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]

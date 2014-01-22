@@ -161,7 +161,19 @@
    ;; (isinstance x klass) => (instance? klass x)
    [(fresh [x klass]
            (≡ expr `(isinstance ~x ~klass))
-           (≡ out `(instance? ~klass ~x)))]))
+           (≡ out `(instance? ~klass ~x)))]
+   ;; (instance? float x) => (float? x)
+   ;; (instance? int x) => (integer? x)
+   ;; (instance? str x) => (string? x)
+   ;; (instance? unicode x) => (string? x)
+   [(fresh [klass x alt]
+           (≡ expr `(instance? ~klass ~x))
+           (condᵉ
+            [(≡ klass 'float) (≡ alt 'float?)]
+            [(≡ klass 'int) (≡ alt 'integer?)]
+            [(≡ klass 'str) (≡ alt 'string?)]
+            [(≡ klass 'unicode) (≡ alt 'string?)])
+           (≡ out `(~alt ~x)))]))
 
 (eval-and-compile
  (defn --transform-bindings [bindings body]
