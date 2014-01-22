@@ -123,8 +123,8 @@
    [(fresh [x]
            (condᵉ
             [(≡ expr `(= ~x nil))]
-            [(≡ expr `(= nil x))])
-           (≡ out `(nil? x)))]
+            [(≡ expr `(= nil ~x))])
+           (≡ out `(nil? ~x)))]
    ;; none? => nil?
    [(fresh [x]
            (≡ expr `(none? ~x))
