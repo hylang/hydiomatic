@@ -20,42 +20,40 @@
 
 (defrules [rules/control-structᵒ rules/control-structo]
   ;; (if test y nil) => (when test y)
-  (rule [test yes-branch]
-        `(if ~test ~yes-branch nil)
-        `(when ~test ~yes-branch))
+  [[test yes-branch]
+   `(if ~test ~yes-branch nil)
+   `(when ~test ~yes-branch)]
   ;; (if test nil n) => (unless test n)
-  (rule [test no-branch]
-        `(if ~test nil ~no-branch)
-        `(unless ~test ~no-branch))
+  [[test no-branch]
+   `(if ~test nil ~no-branch)
+   `(unless ~test ~no-branch)]
   ;; (if (not test) a b) => (if-not test a b)
-  (rule [test branches]
-        `(if (not ~test) . ~branches)
-        `(if-not ~test . ~branches))
+  [[test branches]
+   `(if (not ~test) . ~branches)
+   `(if-not ~test . ~branches)]
   ;; (if test (do y)) => (when test y)
-  (rule [test y]
-        `(if ~test (do . ~y))
-        `(when ~test . ~y))
+  [[test y]
+   `(if ~test (do . ~y))
+   `(when ~test . ~y)]
   ;; (when (not test) stuff) => (unless test stuff)
-  (rule [test body]
-        `(when (not ~test) . ~body)
-        `(unless ~test . ~body))
+  [[test body]
+   `(when (not ~test) . ~body)
+   `(unless ~test . ~body)]
   ;; (do x) => x
-  (rule [body]
-        `(do ~body)
-        body)
+  [[body] `(do ~body) body]
   ;; (when test (do x)) => (when test x)
-  (rule [test body]
-        `(when ~test (do . ~body))
-        `(when ~test . ~body))
+  [[test body]
+   `(when ~test (do . ~body))
+   `(when ~test . ~body)]
   ;; (unless test (do x)) => (unless test x)
-  (rule [test body]
-        `(unless ~test (do . ~body))
-        `(unless ~test . ~body))
+  [[test body]
+   `(unless ~test (do . ~body))
+   `(unless ~test . ~body)]
   ;; (if test a) => (when test a)
-  (rule [test branch]
-        `(if ~test ~branch)
-        `(when ~test ~branch))
+  [[test branch]
+   `(if ~test ~branch)
+   `(when ~test ~branch)]
   ;; (if-not test a) => (unless test a)
-  (rule [test branch]
-        `(if-not ~test ~branch)
-        `(unless ~test ~branch)))
+  [[test branch]
+   `(if-not ~test ~branch)
+   `(unless ~test ~branch)])

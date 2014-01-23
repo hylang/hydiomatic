@@ -20,17 +20,17 @@
 
 (defrules [rules/arithmeticᵒ rules/arithmetico]
   ;; (+ 0 x), (+ x 0) => x
-  (rule [x] `(+ 0 ~x) x)
-  (rule [x] `(+ ~x 0) x)
+  [[x] `(+ 0 ~x) x]
+  [[x] `(+ ~x 0) x]
   ;; (* 1 x), (* x 1) => x
-  (rule [x] `(* 1 ~x) x)
-  (rule [x] `(* ~x 1) x)
+  [[x] `(* 1 ~x) x]
+  [[x] `(* ~x 1) x]
   ;; (+ x (+ ...)) => (+ x ...)
-  (rule [x xs] `(+ ~x (+ . ~xs)) `(+ ~x . ~xs))
+  [[x xs] `(+ ~x (+ . ~xs)) `(+ ~x . ~xs)]
   ;; (* x (* ...)) => (* x ...)
-  (rule [x xs] `(* ~x (* . ~xs)) `(* ~x . ~xs))
+  [[x xs] `(* ~x (* . ~xs)) `(* ~x . ~xs)]
   ;; (+ x 1), (+ 1 x) => (inc x)
-  (rule [x] `(+ ~x 1) `(inc ~x))
-  (rule [x] `(+ 1 ~x) `(inc ~x))
+  [[x] `(+ ~x 1) `(inc ~x)]
+  [[x] `(+ 1 ~x) `(inc ~x)]
   ;; (- x 1) => (dec x)
-  (rule [x] `(- ~x 1) `(dec ~x)))
+  [[x] `(- ~x 1) `(dec ~x)])

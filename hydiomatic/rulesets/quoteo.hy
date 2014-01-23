@@ -20,4 +20,4 @@
 
 (defrules [rules/quoteᵒ rules/quoteo]
   ;; `~x => x
-  (rule [x] `(quasiquote (unquote ~x)) x))
+  [[x] `(quasiquote (unquote ~x)) x])

@@ -29,22 +29,22 @@
           (project [params]
                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]
   ;; (isinstance x klass) => (instance? klass x)
-  (rule [x klass] `(isinstance ~x ~klass) `(instance? ~klass ~x))
+  [[x klass] `(isinstance ~x ~klass) `(instance? ~klass ~x)]
   ;; (instance? float x) => (float? x)
-  (rule [x] `(instance? float ~x) `(float? ~x))
+  [[x] `(instance? float ~x) `(float? ~x)]
   ;; (instance? int x) => (integer? x)
-  (rule [x] `(instance? int ~x) `(integer? ~x))
+  [[x] `(instance? int ~x) `(integer? ~x)]
   ;; (instance? str x) => (string? x)
-  (rule [x] `(instance? str ~x) `(string? ~x))
+  [[x] `(instance? str ~x) `(string? ~x)]
   ;; (instance? unicode x) => (string? x)
-  (rule [x] `(instance? unicode ~x) `(string? ~x))
+  [[x] `(instance? unicode ~x) `(string? ~x)]
   ;; (for* [x iteratable] (yield x))
   ;;  => (yield-from iteratable)
-  (rule [x iteratable]
-        `(for* [~x ~iteratable] (yield ~x))
-        `(yield-from ~iteratable))
+  [[x iteratable]
+   `(for* [~x ~iteratable] (yield ~x))
+   `(yield-from ~iteratable)]
   ;; (-> a) => a
-  (rule [a] `(-> ~a) a)
+  [[a] `(-> ~a) a]
   ;; (-> (-> x) y) => (-> x y)
   [(fresh [inner x y o]
           (≡ expr `(-> ~inner . ~y))
@@ -55,7 +55,7 @@
           (typeᵒ y HyExpression)
           (appendᵒ o y out))]
   ;; (tuple [...]) => (, ...)
-  (rule [x] `(tuple ~x) `(, . ~x))
+  [[x] `(tuple ~x) `(, . ~x)]
   ;; (kwapply (.foo bar baz) {...}) => (apply bar.foo [baz] {...})
   [(fresh [target kwargs method call-name params new-params]
           (≡ expr `(kwapply ~target ~kwargs))

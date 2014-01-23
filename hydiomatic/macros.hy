@@ -17,12 +17,16 @@
 (import [adderall.dsl [*]])
 (require adderall.dsl)
 
-(defmacro rule [fresh pat subst]
-  `[(fresh ~fresh
-           (≡ expr ~pat)
-           (≡ out ~subst))])
+(eval-and-compile
+ (defn rule [rule]
+   (if (instance? HyExpression (first rule))
+     rule
+     (let [[[f pat subst] rule]]
+       `[(fresh ~f
+                 (≡ expr ~pat)
+                 (≡ out ~subst))]))))
 
 (defmacro defrules [aliases &rest rules]
   `(defn-alias [~@aliases] [expr out]
      (condᵉ
-      ~@rules)))
+      ~@(map rule rules))))
