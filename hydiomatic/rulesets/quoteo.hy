@@ -14,23 +14,12 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hydiomatic.rulesets.arithmetico [*]]
-        [hydiomatic.rulesets.quoteo [*]]
-        [hydiomatic.rulesets.control-structo [*]]
-        [hydiomatic.rulesets.equalityo [*]]
-        [hydiomatic.rulesets.collectiono [*]]
-        [hydiomatic.rulesets.syntaxo [*]]
-        [hydiomatic.rulesets.optimo [*]]
-        [adderall.dsl [*]])
+(import [adderall.dsl [*]])
 (require adderall.dsl)
-(require hydiomatic.macros)
 
-(defn rules/default [expr q]
+(defn-alias [rules/quoteᵒ rules/quoteo] [expr out]
   (condᵉ
-   [(rules/arithmeticᵒ expr q)]
-   [(rules/quoteᵒ expr q)]
-   [(rules/control-structᵒ expr q)]
-   [(rules/equalityᵒ expr q)]
-   [(rules/collectionᵒ expr q)]
-   [(rules/syntaxᵒ expr q)]
-   [(rules/optimᵒ expr q)]))
+   ;; `~x => x
+   [(fresh [x]
+           (≡ expr `(quasiquote (unquote ~x)))
+           (≡ out x))]))

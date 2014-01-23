@@ -14,23 +14,25 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hydiomatic.rulesets.arithmetico [*]]
-        [hydiomatic.rulesets.quoteo [*]]
-        [hydiomatic.rulesets.control-structo [*]]
-        [hydiomatic.rulesets.equalityo [*]]
-        [hydiomatic.rulesets.collectiono [*]]
-        [hydiomatic.rulesets.syntaxo [*]]
-        [hydiomatic.rulesets.optimo [*]]
-        [adderall.dsl [*]])
+(import [adderall.dsl [*]]
+        [hy [HyExpression]])
 (require adderall.dsl)
-(require hydiomatic.macros)
 
-(defn rules/default [expr q]
+(eval-and-compile
+ (defn --transform-bindings [bindings body]
+   (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
+         (+ new-bindings body))))
+
+(defn-alias [rules/optimᵒ rules/optimo] [expr out]
   (condᵉ
-   [(rules/arithmeticᵒ expr q)]
-   [(rules/quoteᵒ expr q)]
-   [(rules/control-structᵒ expr q)]
-   [(rules/equalityᵒ expr q)]
-   [(rules/collectionᵒ expr q)]
-   [(rules/syntaxᵒ expr q)]
-   [(rules/optimᵒ expr q)]))
+   ;; (defn foo [x] (let [[y (inc x)]] ...))
+   ;;  => (defn foo [x] (setv y (inc x)) ...)
+   [(fresh [op fname params bindings body new-body c]
+           (memberᵒ op `[defn defun defn-alias defun-alias])
+           (≡ expr `(~op ~fname ~params
+                      (let ~bindings . ~body)))
+           (project [bindings body]
+                    (≡ new-body (--transform-bindings bindings body)))
+           (≡ c `(~op ~fname ~params . ~new-body))
+           (project [c]
+                    (≡ out (HyExpression c))))]))

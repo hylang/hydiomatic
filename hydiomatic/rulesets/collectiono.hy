@@ -14,23 +14,29 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hydiomatic.rulesets.arithmetico [*]]
-        [hydiomatic.rulesets.quoteo [*]]
-        [hydiomatic.rulesets.control-structo [*]]
-        [hydiomatic.rulesets.equalityo [*]]
-        [hydiomatic.rulesets.collectiono [*]]
-        [hydiomatic.rulesets.syntaxo [*]]
-        [hydiomatic.rulesets.optimo [*]]
-        [adderall.dsl [*]])
+(import [adderall.dsl [*]])
 (require adderall.dsl)
-(require hydiomatic.macros)
 
-(defn rules/default [expr q]
+(defn-alias [rules/collectionᵒ rules/collectiono] [expr out]
   (condᵉ
-   [(rules/arithmeticᵒ expr q)]
-   [(rules/quoteᵒ expr q)]
-   [(rules/control-structᵒ expr q)]
-   [(rules/equalityᵒ expr q)]
-   [(rules/collectionᵒ expr q)]
-   [(rules/syntaxᵒ expr q)]
-   [(rules/optimᵒ expr q)]))
+   ;; (get x 0) => (first x)
+   [(fresh [x]
+           (≡ expr `(get ~x 0))
+           (≡ out `(first ~x)))]
+   ;; (get x 1) => (second x)
+   [(fresh [x]
+           (≡ expr `(get ~x 1))
+           (≡ out `(second ~x)))]
+
+   ;; (slice x 1) => (rest x)
+   [(fresh [x]
+           (≡ expr `(slice ~x 1))
+           (≡ out `(rest ~x)))]
+   ;; (= (len x) 0), (= 0 (len x)), (zero? (len x))
+   ;;  => (empty? x)
+   [(fresh [x]
+           (condᵉ
+            [(≡ expr `(= (len ~x) 0))]
+            [(≡ expr `(= 0 (len ~x)))]
+            [(≡ expr `(zero? (len ~x)))])
+           (≡ out `(empty? ~x)))]))
