@@ -136,7 +136,14 @@
              'a))
 
   (assert (= (simplify-step '(tuple [1 2 3]))
-             '(, 1 2 3))))
+             '(, 1 2 3)))
+
+  (assert (= (simplify-step '(kwapply (.method self param1 param2)
+                                      {"key" "value"}))
+             '(apply self.method [param1 param2] {"key" "value"})))
+  (assert (= (simplify-step '(kwapply (method param1 param2)
+                                      {"key" "value"}))
+             '(apply method [param1 param2] {"key" "value"}))))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]
