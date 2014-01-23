@@ -17,22 +17,22 @@
 (import [adderall.dsl [*]]
         [hy [HyExpression]])
 (require adderall.dsl)
+(require hydiomatic.macros)
 
 (eval-and-compile
  (defn --transform-bindings [bindings body]
    (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
          (+ new-bindings body))))
 
-(defn-alias [rules/optimᵒ rules/optimo] [expr out]
-  (condᵉ
-   ;; (defn foo [x] (let [[y (inc x)]] ...))
-   ;;  => (defn foo [x] (setv y (inc x)) ...)
-   [(fresh [op fname params bindings body new-body c]
-           (memberᵒ op `[defn defun defn-alias defun-alias])
-           (≡ expr `(~op ~fname ~params
-                      (let ~bindings . ~body)))
-           (project [bindings body]
-                    (≡ new-body (--transform-bindings bindings body)))
-           (≡ c `(~op ~fname ~params . ~new-body))
-           (project [c]
-                    (≡ out (HyExpression c))))]))
+(defrules [rules/optimᵒ rules/optimo]
+  ;; (defn foo [x] (let [[y (inc x)]] ...))
+  ;;  => (defn foo [x] (setv y (inc x)) ...)
+  [(fresh [op fname params bindings body new-body c]
+          (memberᵒ op `[defn defun defn-alias defun-alias])
+          (≡ expr `(~op ~fname ~params
+                        (let ~bindings . ~body)))
+          (project [bindings body]
+                   (≡ new-body (--transform-bindings bindings body)))
+          (≡ c `(~op ~fname ~params . ~new-body))
+          (project [c]
+                   (≡ out (HyExpression c))))])

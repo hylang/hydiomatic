@@ -20,38 +20,37 @@
 (require adderall.dsl)
 (require hydiomatic.macros)
 
-(defn-alias [rules/syntaxᵒ rules/syntaxo] [expr out]
-  (condᵉ
-   ;; (defn foo (x) ...) => (defn foo [x] ...)
-   [(fresh [op fname params body]
-           (memberᵒ op `[defn defun defn-alias defun-alias])
-           (≡ expr `(~op ~fname ~params . ~body))
-           (typeᵒ params HyExpression)
-           (project [params]
-                    (≡ out `(~op ~fname ~(HyList params) . ~body))))]
-   ;; (isinstance x klass) => (instance? klass x)
-   (rule [x klass] `(isinstance ~x ~klass) `(instance? ~klass ~x))
-   ;; (instance? float x) => (float? x)
-   (rule [x] `(instance? float ~x) `(float? ~x))
-   ;; (instance? int x) => (integer? x)
-   (rule [x] `(instance? int ~x) `(integer? ~x))
-   ;; (instance? str x) => (string? x)
-   (rule [x] `(instance? str ~x) `(string? ~x))
-   ;; (instance? unicode x) => (string? x)
-   (rule [x] `(instance? unicode ~x) `(string? ~x))
-   ;; (for* [x iteratable] (yield x))
-   ;;  => (yield-from iteratable)
-   (rule [x iteratable]
-         `(for* [~x ~iteratable] (yield ~x))
-         `(yield-from ~iteratable))
-   ;; (-> a) => a
-   (rule [a] `(-> ~a) a)
-   ;; (-> (-> x) y) => (-> x y)
-   [(fresh [inner x y o]
-           (≡ expr `(-> ~inner . ~y))
-           (≡ inner `(-> . ~x))
-           (≡ o `(-> . ~x))
-           (typeᵒ inner HyExpression)
-           (typeᵒ x HyExpression)
-           (typeᵒ y HyExpression)
-           (appendᵒ o y out))]))
+(defrules [rules/syntaxᵒ rules/syntaxo]
+  ;; (defn foo (x) ...) => (defn foo [x] ...)
+  [(fresh [op fname params body]
+          (memberᵒ op `[defn defun defn-alias defun-alias])
+          (≡ expr `(~op ~fname ~params . ~body))
+          (typeᵒ params HyExpression)
+          (project [params]
+                   (≡ out `(~op ~fname ~(HyList params) . ~body))))]
+  ;; (isinstance x klass) => (instance? klass x)
+  (rule [x klass] `(isinstance ~x ~klass) `(instance? ~klass ~x))
+  ;; (instance? float x) => (float? x)
+  (rule [x] `(instance? float ~x) `(float? ~x))
+  ;; (instance? int x) => (integer? x)
+  (rule [x] `(instance? int ~x) `(integer? ~x))
+  ;; (instance? str x) => (string? x)
+  (rule [x] `(instance? str ~x) `(string? ~x))
+  ;; (instance? unicode x) => (string? x)
+  (rule [x] `(instance? unicode ~x) `(string? ~x))
+  ;; (for* [x iteratable] (yield x))
+  ;;  => (yield-from iteratable)
+  (rule [x iteratable]
+        `(for* [~x ~iteratable] (yield ~x))
+        `(yield-from ~iteratable))
+  ;; (-> a) => a
+  (rule [a] `(-> ~a) a)
+  ;; (-> (-> x) y) => (-> x y)
+  [(fresh [inner x y o]
+          (≡ expr `(-> ~inner . ~y))
+          (≡ inner `(-> . ~x))
+          (≡ o `(-> . ~x))
+          (typeᵒ inner HyExpression)
+          (typeᵒ x HyExpression)
+          (typeᵒ y HyExpression)
+          (appendᵒ o y out))])

@@ -18,7 +18,6 @@
 (require adderall.dsl)
 (require hydiomatic.macros)
 
-(defn-alias [rules/quoteᵒ rules/quoteo] [expr out]
-  (condᵉ
-   ;; `~x => x
-   (rule [x] `(quasiquote (unquote ~x)) x)))
+(defrules [rules/quoteᵒ rules/quoteo]
+  ;; `~x => x
+  (rule [x] `(quasiquote (unquote ~x)) x))

@@ -18,16 +18,15 @@
 (require adderall.dsl)
 (require hydiomatic.macros)
 
-(defn-alias [rules/collectionᵒ rules/collectiono] [expr out]
-  (condᵉ
-   ;; (get x 0) => (first x)
-   (rule [x] `(get ~x 0) `(first ~x))
-   ;; (get x 1) => (second x)
-   (rule [x] `(get ~x 1) `(second ~x))
-   ;; (slice x 1) => (rest x)
-   (rule [x] `(slice ~x 1) `(rest ~x))
-   ;; (= (len x) 0), (= 0 (len x)), (zero? (len x))
-   ;;  => (empty? x)
-   (rule [x] `(= (len ~x) 0) `(empty? ~x))
-   (rule [x] `(= 0 (len ~x)) `(empty? ~x))
-   (rule [x] `(zero? (len ~x)) `(empty? ~x))))
+(defrules [rules/collectionᵒ rules/collectiono]
+  ;; (get x 0) => (first x)
+  (rule [x] `(get ~x 0) `(first ~x))
+  ;; (get x 1) => (second x)
+  (rule [x] `(get ~x 1) `(second ~x))
+  ;; (slice x 1) => (rest x)
+  (rule [x] `(slice ~x 1) `(rest ~x))
+  ;; (= (len x) 0), (= 0 (len x)), (zero? (len x))
+  ;;  => (empty? x)
+  (rule [x] `(= (len ~x) 0) `(empty? ~x))
+  (rule [x] `(= 0 (len ~x)) `(empty? ~x))
+  (rule [x] `(zero? (len ~x)) `(empty? ~x)))

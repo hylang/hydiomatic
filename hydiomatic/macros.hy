@@ -21,3 +21,8 @@
   `[(fresh ~fresh
            (≡ expr ~pat)
            (≡ out ~subst))])
+
+(defmacro defrules [aliases &rest rules]
+  `(defn-alias [~@aliases] [expr out]
+     (condᵉ
+      ~@rules)))
