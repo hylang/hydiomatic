@@ -133,7 +133,10 @@
   (assert (= (simplify-step '(-> (-> a b) c d))
              '(-> a b c d)))
   (assert (= (simplify-step '(-> a))
-             'a)))
+             'a))
+
+  (assert (= (simplify-step '(tuple [1 2 3]))
+             '(, 1 2 3))))
 
 (defn test-rules-optimo []
   (assert (= (simplify-step '(defn foo [x]

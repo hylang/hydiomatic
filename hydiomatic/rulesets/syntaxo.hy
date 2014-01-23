@@ -53,4 +53,6 @@
           (typeᵒ inner HyExpression)
           (typeᵒ x HyExpression)
           (typeᵒ y HyExpression)
-          (appendᵒ o y out))])
+          (appendᵒ o y out))]
+  ;; (tuple [...]) => (, ...)
+  (rule [x] `(tuple ~x) `(, . ~x)))
