@@ -19,10 +19,9 @@
 (require adderall.dsl)
 (require hydiomatic.macros)
 
-(eval-and-compile
- (defn --transform-bindings [bindings body]
-   (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
-         (+ new-bindings body))))
+(defn --transform-bindings [bindings body]
+  (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
+    (+ new-bindings body)))
 
 (defrules [rules/optimᵒ rules/optimo]
   ;; (defn foo [x] (let [[y (inc x)]] ...))
