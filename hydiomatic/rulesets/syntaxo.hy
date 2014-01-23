@@ -18,6 +18,7 @@
         [adderall.extra.misc [*]]
         [hy [HyExpression HyList]])
 (require adderall.dsl)
+(require hydiomatic.macros)
 
 (defn-alias [rules/syntaxᵒ rules/syntaxo] [expr out]
   (condᵉ
@@ -29,28 +30,22 @@
            (project [params]
                     (≡ out `(~op ~fname ~(HyList params) . ~body))))]
    ;; (isinstance x klass) => (instance? klass x)
-   [(fresh [x klass]
-           (≡ expr `(isinstance ~x ~klass))
-           (≡ out `(instance? ~klass ~x)))]
+   (rule [x klass] `(isinstance ~x ~klass) `(instance? ~klass ~x))
    ;; (instance? float x) => (float? x)
+   (rule [x] `(instance? float ~x) `(float? ~x))
    ;; (instance? int x) => (integer? x)
+   (rule [x] `(instance? int ~x) `(integer? ~x))
    ;; (instance? str x) => (string? x)
+   (rule [x] `(instance? str ~x) `(string? ~x))
    ;; (instance? unicode x) => (string? x)
-   [(fresh [klass x alt]
-           (≡ expr `(instance? ~klass ~x))
-           (condᵉ
-            [(≡ klass 'float) (≡ alt 'float?)]
-            [(≡ klass 'int) (≡ alt 'integer?)]
-            [(≡ klass 'str) (≡ alt 'string?)]
-            [(≡ klass 'unicode) (≡ alt 'string?)])
-           (≡ out `(~alt ~x)))]
+   (rule [x] `(instance? unicode ~x) `(string? ~x))
    ;; (for* [x iteratable] (yield x))
    ;;  => (yield-from iteratable)
-   [(fresh [x iteratable]
-           (≡ expr `(for* [~x ~iteratable] (yield ~x)))
-           (≡ out `(yield-from ~iteratable)))]
+   (rule [x iteratable]
+         `(for* [~x ~iteratable] (yield ~x))
+         `(yield-from ~iteratable))
    ;; (-> a) => a
-   [(≡ expr `(-> ~out))]
+   (rule [a] `(-> ~a) a)
    ;; (-> (-> x) y) => (-> x y)
    [(fresh [inner x y o]
            (≡ expr `(-> ~inner . ~y))

@@ -16,40 +16,24 @@
 
 (import [adderall.dsl [*]])
 (require adderall.dsl)
+(require hydiomatic.macros)
 
 (defn-alias [rules/equalityᵒ rules/equalityo] [expr out]
   (condᵉ
    ;; (= (% n 2) 0) => (even? n)
+   (rule [n] `(= (% ~n 2) 0) `(even? ~n))
    ;; (= (% n 2) 1) => (odd? n)
-   [(fresh [n r op]
-           (≡ expr `(= (% ~n 2) ~r))
-           (condᵉ
-            [(≡ r 0) (≡ op 'even?)]
-            [(≡ r 1) (≡ op 'odd?)])
-           (≡ out `(~op ~n)))]
+   (rule [n] `(= (% ~n 2) 1) `(odd? ~n))
    ;; zero?
-   [(fresh [x]
-           (condᵉ
-            [(≡ expr `(= 0 ~x))]
-            [(≡ expr `(= ~x 0))])
-           (≡ out `(zero? ~x)))]
+   (rule [x] `(= 0 ~x) `(zero? ~x))
+   (rule [x] `(= ~x 0) `(zero? ~x))
    ;; pos?
-   [(fresh [x]
-           (condᵉ
-            [(≡ expr `(< 0 ~x))]
-            [(≡ expr `(> ~x 0))])
-           (≡ out `(pos? ~x)))]
+   (rule [x] `(< 0 ~x) `(pos? ~x))
+   (rule [x] `(> ~x 0) `(pos? ~x))
    ;; neg?
-   [(fresh [x]
-           (≡ expr `(< ~x 0))
-           (≡ out `(neg? ~x)))]
+   (rule [x] `(< ~x 0) `(neg? ~x))
    ;; nil?
-   [(fresh [x]
-           (condᵉ
-            [(≡ expr `(= ~x nil))]
-            [(≡ expr `(= nil ~x))])
-           (≡ out `(nil? ~x)))]
+   (rule [x] `(= ~x nil) `(nil? ~x))
+   (rule [x] `(= nil ~x) `(nil? ~x))
    ;; none? => nil?
-   [(fresh [x]
-           (≡ expr `(none? ~x))
-           (≡ out `(nil? ~x)))]))
+   (rule [x] `(none? ~x) `(nil? ~x))))

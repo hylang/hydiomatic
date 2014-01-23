@@ -16,42 +16,47 @@
 
 (import [adderall.dsl [*]])
 (require adderall.dsl)
+(require hydiomatic.macros)
 
 (defn-alias [rules/control-structᵒ rules/control-structo] [expr out]
   (condᵉ
    ;; (if test y nil) => (when test y)
-   [(fresh [test yes-branch]
-           (≡ expr `(if ~test ~yes-branch nil))
-           (≡ out `(when ~test ~yes-branch)))]
+   (rule [test yes-branch]
+         `(if ~test ~yes-branch nil)
+         `(when ~test ~yes-branch))
    ;; (if test nil n) => (unless test n)
-   [(fresh [test no-branch]
-           (≡ expr `(if ~test nil ~no-branch))
-           (≡ out `(unless ~test ~no-branch)))]
+   (rule [test no-branch]
+         `(if ~test nil ~no-branch)
+         `(unless ~test ~no-branch))
    ;; (if (not test) a b) => (if-not test a b)
-   [(fresh [test branches]
-           (≡ expr `(if (not ~test) . ~branches))
-           (≡ out `(if-not ~test . ~branches)))]
+   (rule [test branches]
+         `(if (not ~test) . ~branches)
+         `(if-not ~test . ~branches))
    ;; (if test (do y)) => (when test y)
-   [(fresh [test y]
-           (≡ expr `(if ~test (do . ~y)))
-           (≡ out `(when ~test . ~y)))]
+   (rule [test y]
+         `(if ~test (do . ~y))
+         `(when ~test . ~y))
    ;; (when (not test) stuff) => (unless test stuff)
-   [(fresh [test body]
-           (≡ expr `(when (not ~test) . ~body))
-           (≡ out `(unless ~test . ~body)))]
+   (rule [test body]
+         `(when (not ~test) . ~body)
+         `(unless ~test . ~body))
    ;; (do x) => x
-   [(≡ expr `(do ~out))]
+   (rule [body]
+         `(do ~body)
+         body)
    ;; (when test (do x)) => (when test x)
+   (rule [test body]
+         `(when ~test (do . ~body))
+         `(when ~test . ~body))
    ;; (unless test (do x)) => (unless test x)
-   [(fresh [op test body]
-           (memberᵒ op `[when unless])
-           (≡ expr `(~op ~test (do . ~body)))
-           (≡ out `(~op ~test . ~body)))]
+   (rule [test body]
+         `(unless ~test (do . ~body))
+         `(unless ~test . ~body))
    ;; (if test a) => (when test a)
+   (rule [test branch]
+         `(if ~test ~branch)
+         `(when ~test ~branch))
    ;; (if-not test a) => (unless test a)
-   [(fresh [op new-op test branch]
-           (condᵉ
-            [(≡ op 'if) (≡ new-op 'when)]
-            [(≡ op 'if-not) (≡ new-op 'unless)])
-           (≡ expr `(~op ~test ~branch))
-           (≡ out `(~new-op ~test ~branch)))]))
+   (rule [test branch]
+         `(if-not ~test ~branch)
+         `(unless ~test ~branch))))

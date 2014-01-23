@@ -16,31 +16,22 @@
 
 (import [adderall.dsl [*]])
 (require adderall.dsl)
+(require hydiomatic.macros)
 
 (defn-alias [rules/arithmeticᵒ rules/arithmetico] [expr out]
   (condᵉ
    ;; (+ 0 x), (+ x 0) => x
+   (rule [x] `(+ 0 ~x) x)
+   (rule [x] `(+ ~x 0) x)
    ;; (* 1 x), (* x 1) => x
-   [(fresh [op zero]
-           (condᵉ
-            [(≡ op '+) (≡ zero 0)]
-            [(≡ op '*) (≡ zero 1)])
-           (condᵉ
-            [(≡ expr `(~op ~zero ~out))]
-            [(≡ expr `(~op ~out ~zero))]))]
+   (rule [x] `(* 1 ~x) x)
+   (rule [x] `(* ~x 1) x)
    ;; (+ x (+ ...)) => (+ x ...)
+   (rule [x xs] `(+ ~x (+ . ~xs)) `(+ ~x . ~xs))
    ;; (* x (* ...)) => (* x ...)
-   [(fresh [op x xs]
-           (memberᵒ op `[+ *])
-           (≡ expr `(~op ~x (~op . ~xs)))
-           (≡ out `(~op ~x . ~xs)))]
+   (rule [x xs] `(* ~x (* . ~xs)) `(* ~x . ~xs))
    ;; (+ x 1), (+ 1 x) => (inc x)
-   [(fresh [x]
-           (condᵉ
-            [(≡ expr `(+ ~x 1))]
-            [(≡ expr `(+ 1 ~x))])
-           (≡ out `(inc ~x)))]
+   (rule [x] `(+ ~x 1) `(inc ~x))
+   (rule [x] `(+ 1 ~x) `(inc ~x))
    ;; (- x 1) => (dec x)
-   [(fresh [x]
-           (≡ expr `(- ~x 1))
-           (≡ out `(dec ~x)))]))
+   (rule [x] `(- ~x 1) `(dec ~x))))
