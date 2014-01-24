@@ -18,11 +18,11 @@
 
 (defn walk [inner outer form]
   (cond
-   [(isinstance form HyExpression)
+   [(instance? HyExpression form)
     (outer (HyExpression (map inner form)))]
-   [(isinstance form HyDict)
+   [(instance? HyDict form)
     (HyDict (outer (HyExpression (map inner form))))]
-   [(isinstance form list)
+   [(instance? list form)
     ((type form) (outer (HyExpression (map inner form))))]
    [true (outer form)]))
 
@@ -33,17 +33,17 @@
 
 (defn -pprint [form]
   (cond
-   [(isinstance form HyExpression)
+   [(instance? HyExpression form)
     (+ "(" (.join " " (map -pprint form)) ")")]
-   [(isinstance form HySymbol)
+   [(instance? HySymbol form)
     (str form)]
-   [(isinstance form HyInteger)
+   [(instance? HyInteger form)
     (str form)]
-   [(isinstance form HyString)
+   [(instance? HyString form)
     (str (+ "\"" (str form) "\""))]
-   [(isinstance form HyDict)
+   [(instance? HyDict form)
     (+ "{" (.join " " (map -pprint form)) "}")]
-   [(isinstance form list)
+   [(instance? list form)
     (+ "[" (.join " " (map -pprint form)) "]")]
    [true
     nil]))
