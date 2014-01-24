@@ -15,7 +15,7 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [hydiomatic.core [*]]
-        [hy [HyDict]])
+        [hy [HyDict HyList]])
 
 (defmacro assert-step [expr expected]
   `(assert (= (simplify-step '~expr)
@@ -166,7 +166,10 @@
 
 (defn test-rules-none []
   (assert-step () ())
-  (assert-step (inc 2) (inc 2)))
+  (assert-step (inc 2) (inc 2))
+  (assert-step [a] [a])
+  (assert (= (type (simplify '[]))
+             HyList)))
 
 (defn test-simplify []
   (assert-simplify (something (+ 1 (+ 1)))

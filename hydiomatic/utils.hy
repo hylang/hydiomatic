@@ -23,7 +23,7 @@
    [(isinstance form HyDict)
     (HyDict (outer (HyExpression (map inner form))))]
    [(isinstance form list)
-    (list (outer (HyExpression (map inner form))))]
+    ((type form) (outer (HyExpression (map inner form))))]
    [true (outer form)]))
 
 (defn identity [f] f)
