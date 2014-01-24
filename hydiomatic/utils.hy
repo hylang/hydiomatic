@@ -38,13 +38,13 @@
     (+ "(" (.join " " (map -pprint form)) ")")]
    [(or (instance? HySymbol form) (instance? HyLambdaListKeyword form))
     (str form)]
-   [(instance? HyInteger form)
+   [(or (instance? HyInteger form) (integer? form))
     (str form)]
    [(instance? HyKeyword form)
     (str (rest (rest form)))]
-   [(instance? HyString form)
+   [(or (instance? HyString form) (string? form))
     (str (+ "\"" (str form) "\""))]
-   [(instance? HyDict form)
+   [(or (instance? HyDict form) (instance? dict form))
     (+ "{" (.join " " (map -pprint form)) "}")]
    [(instance? list form)
     (+ "[" (.join " " (map -pprint form)) "]")]
