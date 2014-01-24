@@ -15,7 +15,7 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [hy [HyExpression HySymbol HyInteger HyString HyDict
-             HyLambdaListKeyword HyKeyword]])
+             HyLambdaListKeyword HyKeyword HyCons]])
 
 (defn walk [inner outer form]
   (cond
@@ -48,6 +48,8 @@
     (+ "{" (.join " " (map -pprint form)) "}")]
    [(instance? list form)
     (+ "[" (.join " " (map -pprint form)) "]")]
+   [(cons? form)
+    (+ "(" (-pprint (first form)) " . " (-pprint (rest form)) ")")]
    [true
     nil]))
 
