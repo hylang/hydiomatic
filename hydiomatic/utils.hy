@@ -14,7 +14,8 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hy [HyExpression HySymbol HyInteger HyString HyDict]])
+(import [hy [HyExpression HySymbol HyInteger HyString HyDict
+             HyLambdaListKeyword HyKeyword]])
 
 (defn walk [inner outer form]
   (cond
@@ -35,10 +36,12 @@
   (cond
    [(instance? HyExpression form)
     (+ "(" (.join " " (map -pprint form)) ")")]
-   [(instance? HySymbol form)
+   [(or (instance? HySymbol form) (instance? HyLambdaListKeyword form))
     (str form)]
    [(instance? HyInteger form)
     (str form)]
+   [(instance? HyKeyword form)
+    (str (rest (rest form)))]
    [(instance? HyString form)
     (str (+ "\"" (str form) "\""))]
    [(instance? HyDict form)
