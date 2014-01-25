@@ -22,6 +22,14 @@
   (apply printer [(transform (import-file-to-hst fn))]
          {"outermost" true}))
 
+(defn do-diff [fn]
+  (let [[original (process-file identity hypformat fn)]
+        [simplified (process-file simplify hypformat fn)]]
+    (for [line (apply unified-diff [original simplified]
+                      {"fromfile" (+ fn ".orig")
+                       "tofile" fn})]
+      (sys.stdout.write line))))
+
 (def parser (apply argparse.ArgumentParser []
                    {"prog" "hydiomatic"
                     "usage" "%(prog)s [options] FILE"
@@ -45,7 +53,8 @@
 (cond
  [options.repl (launch-repl)]
 
- [(not (= (len options.args) 1))
+ [(and (not (= (len options.args) 1))
+       (not options.diff))
   (do
    (.print_help parser)
    (sys.exit 1))]
@@ -54,12 +63,7 @@
   (process-file identity hypprint (first options.args))]
 
  [options.diff
-  (let [[original (process-file identity hypformat (first options.args))]
-        [simplified (process-file simplify hypformat (first options.args))]]
-    (for [line (apply unified-diff [original simplified]
-                      {"fromfile" (+ (first options.args) ".orig")
-                                  "tofile" (first options.args)})]
-      (sys.stdout.write line)))]
+  (map do-diff options.args)]
 
  [true
   (process-file simplify hypprint (first options.args))])
