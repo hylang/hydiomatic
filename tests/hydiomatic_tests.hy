@@ -111,8 +111,6 @@
                (-> a b c d))
   (assert-step (-> a) a)
 
-  (assert-step (tuple [1 2 3]) (, 1 2 3))
-
   (assert-step (kwapply (.method self param1 param2)
                         {"key" "value"})
                (apply self.method [param1 param2]

@@ -53,8 +53,6 @@
          (typeᵒ x HyExpression)
          (typeᵒ y HyExpression)
          (appendᵒ o y out))
-  ;; (tuple [...]) => (, ...)
-  [`(tuple ~?x) `(, . ~?x)]
   ;; (kwapply (.foo bar baz) {...}) => (apply bar.foo [baz] {...})
   (fresh [target kwargs method call-name params new-params]
          (≡ expr `(kwapply ~target ~kwargs))
