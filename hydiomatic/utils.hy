@@ -15,7 +15,8 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [hy [HyExpression HySymbol HyInteger HyString HyDict
-             HyLambdaListKeyword HyKeyword HyCons]])
+             HyLambdaListKeyword HyKeyword HyCons]]
+        [sys])
 
 (defn walk [inner outer form]
   (cond
@@ -58,5 +59,10 @@
 
 (defn hypprint [form &optional [outermost false]]
   (if outermost
-    (map hypprint form)
-    (print (-pprint form))))
+    (hypformat form outermost)
+    (sys.stdout.write (hypformat form))))
+
+(defn hypformat [form &optional [outermost false]]
+  (if outermost
+    (map hypformat form)
+    (+ (-pprint form) "\n")))
