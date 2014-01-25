@@ -29,6 +29,9 @@
 (apply parser.add_argument ["--repl" "-r"]
        {"action" "store_true"
         "help" "Launch a REPL instead of simplifying a file"})
+(apply parser.add_argument ["--dry-run" "-n"]
+       {"action" "store_true"
+        "help" "Output the parsed file without simplification"})
 (apply parser.add_argument ["args"]
        {"nargs" argparse.REMAINDER
         "help" argparse.SUPPRESS})
@@ -41,4 +44,7 @@
    (unless (= (len options.args) 1)
      (.print_help parser)
      (sys.exit 1))
-   (process-file (first options.args))))
+   (if options.dry-run
+     (apply hypprint [(import-file-to-hst (first options.args))]
+            {"outermost" true})
+     (process-file (first options.args)))))
