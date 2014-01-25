@@ -20,19 +20,19 @@
 
 (defrules [rules/equalityᵒ rules/equalityo]
   ;; (= (% n 2) 0) => (even? n)
-  [[n] `(= (% ~n 2) 0) `(even? ~n)]
+  [`(= (% ~?n 2) 0) `(even? ~?n)]
   ;; (= (% n 2) 1) => (odd? n)
-  [[n] `(= (% ~n 2) 1) `(odd? ~n)]
+  [`(= (% ~?n 2) 1) `(odd? ~?n)]
   ;; zero?
-  [[x] `(= 0 ~x) `(zero? ~x)]
-  [[x] `(= ~x 0) `(zero? ~x)]
+  [`(= 0 ~?x) `(zero? ~?x)]
+  [`(= ~?x 0) `(zero? ~?x)]
   ;; pos?
-  [[x] `(< 0 ~x) `(pos? ~x)]
-  [[x] `(> ~x 0) `(pos? ~x)]
+  [`(< 0 ~?x) `(pos? ~?x)]
+  [`(> ~?x 0) `(pos? ~?x)]
   ;; neg?
-  [[x] `(< ~x 0) `(neg? ~x)]
+  [`(< ~?x 0) `(neg? ~?x)]
   ;; nil?
-  [[x] `(= ~x nil) `(nil? ~x)]
-  [[x] `(= nil ~x) `(nil? ~x)]
+  [`(= ~?x nil) `(nil? ~?x)]
+  [`(= nil ~?x) `(nil? ~?x)]
   ;; none? => nil?
-  [[x] `(none? ~x) `(nil? ~x)])
+  [`(none? ~?x) `(nil? ~?x)])

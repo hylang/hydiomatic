@@ -20,13 +20,13 @@
 
 (defrules [rules/collectionᵒ rules/collectiono]
   ;; (get x 0) => (first x)
-  [[x] `(get ~x 0) `(first ~x)]
+  [`(get ~?x 0) `(first ~?x)]
   ;; (get x 1) => (second x)
-  [[x] `(get ~x 1) `(second ~x)]
+  [`(get ~?x 1) `(second ~?x)]
   ;; (slice x 1) => (rest x)
-  [[x] `(slice ~x 1) `(rest ~x)]
+  [`(slice ~?x 1) `(rest ~?x)]
   ;; (= (len x) 0), (= 0 (len x)), (zero? (len x)]
   ;;  => (empty? x)
-  [[x] `(= (len ~x) 0) `(empty? ~x)]
-  [[x] `(= 0 (len ~x)) `(empty? ~x)]
-  [[x] `(zero? (len ~x)) `(empty? ~x)])
+  [`(= (len ~?x) 0) `(empty? ~?x)]
+  [`(= 0 (len ~?x)) `(empty? ~?x)]
+  [`(zero? (len ~?x)) `(empty? ~?x)])

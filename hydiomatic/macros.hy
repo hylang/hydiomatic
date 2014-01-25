@@ -15,14 +15,25 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]])
+(import [hydiomatic.utils [prewalk]]
+        [functools [partial]])
 (require adderall.dsl)
 
 (eval-and-compile
+ (defn prep [freshes expr]
+   (when (and (instance? HySymbol expr)
+              (.startswith expr "?"))
+     (.add freshes expr))
+   expr)
+
  (defn rule [rule]
-   (if (instance? HyExpression (first rule))
-     rule
-     (let [[[f pat subst] rule]]
-       `[(fresh ~f
+   (if (instance? HyExpression rule)
+     `[~rule]
+     (let [[[pat subst] rule]
+           [freshes (set [])]]
+       (prewalk (partial prep freshes) pat)
+       (setv freshes (HyList freshes))
+       `[(fresh ~freshes
                  (≡ expr ~pat)
                  (≡ out ~subst))]))))
 
