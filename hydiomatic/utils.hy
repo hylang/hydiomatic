@@ -59,8 +59,8 @@
 
 (defn hypprint [form &optional [outermost false]]
   (if outermost
-    (hypformat form outermost)
-    (sys.stdout.write (hypformat form))))
+    (map hypprint form)
+    (print (-pprint form))))
 
 (defn hypformat [form &optional [outermost false]]
   (if outermost
