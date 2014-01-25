@@ -6,7 +6,8 @@
         [hy.cmdline [HyREPL]]
         [hy.completer [completion]]
         [hydiomatic.core [simplify]]
-        [hydiomatic.utils [hypprint]])
+        [hydiomatic.utils [hypprint hypformat]]
+        [difflib [unified-diff]])
 
 (defn launch-repl []
   (setv sys.ps1 ";=> ")
@@ -17,8 +18,8 @@
         (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules[*]])")
         (.interact hr "hydiomatic")))
 
-(defn process-file [fn]
-  (apply hypprint [(simplify (import-file-to-hst fn))]
+(defn process-file [transform printer fn]
+  (apply printer [(transform (import-file-to-hst fn))]
          {"outermost" true}))
 
 (def parser (apply argparse.ArgumentParser []
@@ -32,6 +33,9 @@
 (apply parser.add_argument ["--dry-run" "-n"]
        {"action" "store_true"
         "help" "Output the parsed file without simplification"})
+(apply parser.add_argument ["--diff" "-d"]
+       {"action" "store_true"
+        "help" "Print a unified diff of the original and the simplified file."})
 (apply parser.add_argument ["args"]
        {"nargs" argparse.REMAINDER
         "help" argparse.SUPPRESS})
@@ -45,6 +49,14 @@
      (.print_help parser)
      (sys.exit 1))
    (if options.dry-run
-     (apply hypprint [(import-file-to-hst (first options.args))]
-            {"outermost" true})
-     (process-file (first options.args)))))
+     (process-file identity hypprint (first options.args))
+     (if options.diff
+       (let [[original (process-file identity hypformat (first options.args))]
+             [simplified (process-file simplify hypformat (first
+                                                           options.args))]]
+         (for [line (apply unified-diff [original simplified]
+                           {"fromfile" (+ (first options.args)
+                                          ".orig")
+                            "tofile" (first options.args)})]
+           (sys.stdout.write line)))
+       (process-file simplify hypprint (first options.args))))))
