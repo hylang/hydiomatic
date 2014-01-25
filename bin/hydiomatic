@@ -42,21 +42,24 @@
 
 (def options (.parse_args parser (rest sys.argv)))
 
-(if options.repl
-  (launch-repl)
+(cond
+ [options.repl (launch-repl)]
+
+ [(not (= (len options.args) 1))
   (do
-   (unless (= (len options.args) 1)
-     (.print_help parser)
-     (sys.exit 1))
-   (if options.dry-run
-     (process-file identity hypprint (first options.args))
-     (if options.diff
-       (let [[original (process-file identity hypformat (first options.args))]
-             [simplified (process-file simplify hypformat (first
-                                                           options.args))]]
-         (for [line (apply unified-diff [original simplified]
-                           {"fromfile" (+ (first options.args)
-                                          ".orig")
-                            "tofile" (first options.args)})]
-           (sys.stdout.write line)))
-       (process-file simplify hypprint (first options.args))))))
+   (.print_help parser)
+   (sys.exit 1))]
+
+ [options.dry-run
+  (process-file identity hypprint (first options.args))]
+
+ [options.diff
+  (let [[original (process-file identity hypformat (first options.args))]
+        [simplified (process-file simplify hypformat (first options.args))]]
+    (for [line (apply unified-diff [original simplified]
+                      {"fromfile" (+ (first options.args) ".orig")
+                                  "tofile" (first options.args)})]
+      (sys.stdout.write line)))]
+
+ [true
+  (process-file simplify hypprint (first options.args))])
