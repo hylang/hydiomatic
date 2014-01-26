@@ -37,4 +37,6 @@
   ;; none? => nil?
   [`(none? ~?x) `(nil? ~?x)]
   ;; (not (is x y)) => (is-not x y)
-  [`(not (is ~?x ~?y)) `(is-not ~?x ~?y)])
+  [`(not (is ~?x ~?y)) `(is-not ~?x ~?y)]
+  ;; (not (= x y)) => (!= x y)
+  [`(not (= ~?x ~?y)) `(!= ~?x ~?y)])
