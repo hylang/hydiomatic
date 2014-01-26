@@ -39,4 +39,6 @@
   ;; (not (is x y)) => (is-not x y)
   [`(not (is ~?x ~?y)) `(is-not ~?x ~?y)]
   ;; (not (= x y)) => (!= x y)
-  [`(not (= ~?x ~?y)) `(!= ~?x ~?y)])
+  [`(not (= ~?x ~?y)) `(!= ~?x ~?y)]
+  ;; (not (in x y)) => (not-in x y)
+  [`(not (in ~?x ~?y)) `(not-in ~?x ~?y)])
