@@ -36,9 +36,9 @@
   [`(= nil ~?x) `(nil? ~?x)]
   ;; none? => nil?
   [`(none? ~?x) `(nil? ~?x)]
-  ;; (not (is x y)) => (is-not x y)
-  [`(not (is ~?x ~?y)) `(is-not ~?x ~?y)]
-  ;; (not (= x y)) => (!= x y)
-  [`(not (= ~?x ~?y)) `(!= ~?x ~?y)]
-  ;; (not (in x y)) => (not-in x y)
-  [`(not (in ~?x ~?y)) `(not-in ~?x ~?y)])
+  ;; (not (is ...)) => (is-not ...)
+  [`(not (is . ~?xs)) `(is-not . ~?xs)]
+  ;; (not (= ...)) => (!= ...)
+  [`(not (= . ~?xs)) `(!= . ~?xs)]
+  ;; (not (in ...)) => (not-in ...)
+  [`(not (in . ~?xs)) `(not-in . ~?xs)])
