@@ -73,7 +73,8 @@
   (assert-step (= nil n) (nil? n))
   (assert-step (none? n) (nil? n))
   (assert-step (= (% n 2) 0) (even? n))
-  (assert-step (= (% n 2) 1) (odd? n)))
+  (assert-step (= (% n 2) 1) (odd? n))
+  (assert-step (not (is a b)) (is-not a b)))
 
 (defn test-rules-collectiono []
   (assert-step (get coll 0) (first coll))
