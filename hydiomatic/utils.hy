@@ -31,8 +31,6 @@
     ((type form) (outer (HyExpression (map inner form))))]
    [true (outer form)]))
 
-(defn identity [f] f)
-
 (defn prewalk [f form]
   (walk (fn [x] (prewalk f x)) identity (f form)))
 
