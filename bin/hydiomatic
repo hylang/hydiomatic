@@ -53,7 +53,7 @@
 (cond
  [options.repl (launch-repl)]
 
- [(and (not (= (len options.args) 1))
+ [(and (!= (len options.args) 1)
        (not options.diff))
   (do
    (.print_help parser)
