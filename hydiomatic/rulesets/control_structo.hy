@@ -47,4 +47,6 @@
    `(when ~?test ~?branch)]
   ;; (if-not test a) => (unless test a)
   [`(if-not ~?test ~?branch)
-   `(unless ~?test ~?branch)])
+   `(unless ~?test ~?branch)]
+  ;; (let [...] (do ...)) => (let [...] ...)
+  [`(let ~?bindings (do . ~?exprs)) `(let ~?bindings . ~?exprs)])

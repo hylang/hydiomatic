@@ -61,7 +61,13 @@
   (assert-step (if-not true a)
                (unless true a))
   (assert-step (if true a)
-               (when true a)))
+               (when true a))
+  (assert-step (let [[a 1] [b 2]]
+                 (do (print a b)
+                     (+ a b)))
+               (let [[a 1] [b 2]]
+                 (print a b)
+                 (+ a b))))
 
 (defn test-rules-equalityo []
   (assert-step (= 0 x) (zero? x))
