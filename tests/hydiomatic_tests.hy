@@ -67,7 +67,9 @@
                      (+ a b)))
                (let [[a 1] [b 2]]
                  (print a b)
-                 (+ a b))))
+                 (+ a b)))
+  (assert-step (loop [] (when true (print "zing") (recur)))
+               (while true (print "zing"))))
 
 (defn test-rules-equalityo []
   (assert-step (= 0 x) (zero? x))

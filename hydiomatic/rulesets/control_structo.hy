@@ -49,4 +49,10 @@
   [`(if-not ~?test ~?branch)
    `(unless ~?test ~?branch)]
   ;; (let [...] (do ...)) => (let [...] ...)
-  [`(let ~?bindings (do . ~?exprs)) `(let ~?bindings . ~?exprs)])
+  [`(let ~?bindings (do . ~?exprs)) `(let ~?bindings . ~?exprs)]
+  ;; (loop [] (when ... (recur))) => (while ... ...)
+  (fresh [?test ?exprs ?body]
+         (≡ expr `(loop [] (when ~?test . ~?body)))
+         (appendᵒ ?exprs [`(recur)] ?body)
+         (project [?exprs ?test]
+                  (≡ out (HyExpression `(while ~?test . ~?exprs))))))
