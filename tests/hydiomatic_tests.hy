@@ -68,6 +68,15 @@
                (let [[a 1] [b 2]]
                  (print a b)
                  (+ a b)))
+  (assert-step (loop [[i 1]]
+                     (do
+                      (print i)
+                      (when (< i 10)
+                        (recur (inc i)))))
+               (loop [[i 1]]
+                     (print i)
+                     (when (< i 10)
+                       (recur (inc i)))))
   (assert-step (loop [] (when true (print "zing") (recur)))
                (while true (print "zing"))))
 

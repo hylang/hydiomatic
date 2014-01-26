@@ -50,6 +50,8 @@
    `(unless ~?test ~?branch)]
   ;; (let [...] (do ...)) => (let [...] ...)
   [`(let ~?bindings (do . ~?exprs)) `(let ~?bindings . ~?exprs)]
+  ;; (loop [...] (do ...)) => (loop [...] ...)
+  [`(loop ~?bindings (do . ~?exprs)) `(loop ~?bindings . ~?exprs)]
   ;; (loop [] (when ... (recur))) => (while ... ...)
   (fresh [?test ?exprs ?body]
          (≡ expr `(loop [] (when ~?test . ~?body)))
