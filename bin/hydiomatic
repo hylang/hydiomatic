@@ -19,8 +19,8 @@
         (.interact hr "hydiomatic")))
 
 (defn process-file [transform printer fn]
-  (list (apply printer [(transform (import-file-to-hst fn))]
-               {"outermost" true})))
+  (apply printer [(transform (import-file-to-hst fn))]
+         {"outermost" true}))
 
 (defn do-diff [fn]
   (let [[original (process-file identity hypformat fn)]
@@ -63,7 +63,8 @@
   (process-file identity hypprint (first options.args))]
 
  [options.diff
-  (list (map do-diff options.args))]
+  (for [f options.args]
+    (do-diff f))]
 
  [true
   (process-file simplify hypprint (first options.args))])

@@ -57,10 +57,10 @@
 
 (defn hypprint [form &optional [outermost false]]
   (if outermost
-    (map hypprint form)
+    (list (map hypprint form))
     (print (-pprint form))))
 
 (defn hypformat [form &optional [outermost false]]
   (if outermost
-    (map hypformat form)
+    (list (map hypformat form))
     (+ (-pprint form) "\n")))
