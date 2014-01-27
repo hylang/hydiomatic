@@ -32,8 +32,8 @@
   ;; neg?
   [`(< ~?x 0) `(neg? ~?x)]
   ;; nil?
-  [`(= ~?x nil) `(nil? ~?x)]
-  [`(= nil ~?x) `(nil? ~?x)]
+  [`(is ~?x nil) `(nil? ~?x)]
+  [`(is nil ~?x) `(nil? ~?x)]
   ;; none? => nil?
   [`(none? ~?x) `(nil? ~?x)]
   ;; (not (is ...)) => (is-not ...)
