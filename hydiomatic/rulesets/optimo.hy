@@ -34,4 +34,19 @@
                   (≡ new-body (--transform-bindings bindings body)))
          (≡ c `(~op ~fname ~params . ~new-body))
          (project [c]
-                  (≡ out (HyExpression c)))))
+                  (≡ out (HyExpression c))))
+  ;; (fn [x] (foo x)) => foo
+  ;;  (for certain values of foo)
+  (fresh [f op xs]
+         (≡ expr `(~f ~xs (~op . ~xs)))
+         (memberᵒ f `[fn lambda])
+         (condᵉ
+          [(memberᵒ op `[and or not ~ del
+                         quote
+                         throw raise
+                         = != < <= > >= is in is-not not-in
+                         % / // ** << >>  | ^ &
+                         + * -
+                         += /= //= *= -= %= **= <<= >>= |= ^= &=])
+           (≡ out expr)]
+          (else (≡ out op)))))

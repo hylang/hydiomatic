@@ -180,7 +180,18 @@
                  (setv y (inc x))
                  (setv z (inc y))
                  (print x y)
-                 (+ x y z))))
+                 (+ x y z)))
+
+  (assert-step (fn [x] (nil? x))
+               nil?)
+  (assert-step (fn [x] (+ x 2))
+               (fn [x] (+ x 2)))
+  (assert-step (fn [a b] (mix a b))
+               mix)
+  (assert-step (fn [a b] (+ a b))
+               (fn [a b] (+ a b)))
+  (assert-step (lambda [x] (frob x))
+               frob))
 
 (defn test-rules-none []
   (assert-step () ())
