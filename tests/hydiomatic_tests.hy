@@ -15,14 +15,15 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [hydiomatic.core [*]]
+        [hydiomatic.rules [*]]
         [hy [HyDict HyList]])
 
 (defmacro assert-step [expr expected]
-  `(assert (= (simplify-step '~expr)
+  `(assert (= (simplify-step '~expr rules/experimental)
               '~expected)))
 
 (defmacro assert-simplify [expr expected]
-  `(assert (= (simplify '~expr)
+  `(assert (= (simplify '~expr rules/experimental)
               '~expected)))
 
 (defn test-rules-arithmetico []
