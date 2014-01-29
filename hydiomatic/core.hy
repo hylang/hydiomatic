@@ -35,3 +35,15 @@
       (break))
     (setv new-expr res))
   new-expr)
+
+(defn simplifications [expr &optional [rules rules/default]]
+  (setv stages [expr])
+  (setv new-expr (prewalk (fn [x] (simplify-step x rules)) expr))
+  (.append stages new-expr)
+  (while true
+    (setv res (prewalk (fn [x] (simplify-step x rules)) new-expr))
+    (when (= res new-expr)
+      (break))
+    (setv new-expr res)
+    (.append stages new-expr))
+  stages)
