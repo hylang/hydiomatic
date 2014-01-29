@@ -32,5 +32,9 @@
    [(rules/control-structᵒ expr q)]
    [(rules/equalityᵒ expr q)]
    [(rules/collectionᵒ expr q)]
-   [(rules/syntaxᵒ expr q)]
+   [(rules/syntaxᵒ expr q)]))
+
+(defn rules/experimental [expr q]
+  (condᵉ
+   [(rules/default expr q)]
    [(rules/optimᵒ expr q)]))

@@ -6,6 +6,7 @@
         [hy.cmdline [HyREPL]]
         [hy.completer [completion]]
         [hydiomatic.core [simplify]]
+        [hydiomatic.rules [rules/default rules/experimental]]
         [hydiomatic.utils [hypprint hypformat]]
         [difflib [unified-diff]])
 
@@ -18,17 +19,25 @@
         (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules[*]])")
         (.interact hr "hydiomatic")))
 
-(defn process-file [transform printer fn]
-  (apply printer [(transform (import-file-to-hst fn))]
-         {"outermost" true}))
+(defn process-file [transform printer fn rules]
+  (if rules
+    (apply printer [(transform (import-file-to-hst fn) rules)]
+           {"outermost" true})
+    (apply printer [(transform (import-file-to-hst fn))]
+           {"outermost" true})))
 
-(defn do-diff [fn]
-  (let [[original (process-file identity hypformat fn)]
-        [simplified (process-file simplify hypformat fn)]]
+(defn do-diff [fn rules]
+  (let [[original (process-file identity hypformat fn nil)]
+        [simplified (process-file simplify hypformat fn rules)]]
     (for [line (apply unified-diff [original simplified]
                       {"fromfile" (+ fn ".orig")
                        "tofile" fn})]
       (sys.stdout.write line))))
+
+(defn pick-rules [experimental?]
+  (if experimental?
+    rules/experimental
+    rules/default))
 
 (def parser (apply argparse.ArgumentParser []
                    {"prog" "hydiomatic"
@@ -44,6 +53,9 @@
 (apply parser.add_argument ["--diff" "-d"]
        {"action" "store_true"
         "help" "Print a unified diff of the original and the simplified file."})
+(apply parser.add_argument ["--experimental" "-e"]
+       {"action" "store_true"
+         "help" "Use experimental rules too, with potential false positives."})
 (apply parser.add_argument ["args"]
        {"nargs" argparse.REMAINDER
         "help" argparse.SUPPRESS})
@@ -60,11 +72,13 @@
    (sys.exit 1))]
 
  [options.dry-run
-  (process-file identity hypprint (first options.args))]
+  (process-file identity hypprint (first options.args)
+                (pick-rules options.experimental))]
 
  [options.diff
   (for [f options.args]
-    (do-diff f))]
+    (do-diff f (pick-rules options.experimental)))]
 
  [true
-  (process-file simplify hypprint (first options.args))])
+  (process-file simplify hypprint (first options.args)
+                nil)])
