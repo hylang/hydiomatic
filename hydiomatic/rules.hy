@@ -21,6 +21,7 @@
         [hydiomatic.rulesets.collectiono [*]]
         [hydiomatic.rulesets.syntaxo [*]]
         [hydiomatic.rulesets.optimo [*]]
+        [hydiomatic.rulesets.warningso [*]]
         [adderall.dsl [*]])
 (require adderall.dsl)
 (require hydiomatic.macros)
@@ -37,4 +38,5 @@
 (defn rules/experimental [expr q]
   (condᵉ
    [(rules/default expr q)]
-   [(rules/optimᵒ expr q)]))
+   [(rules/optimᵒ expr q)]
+   [(rules/warningsᵒ expr q)]))
