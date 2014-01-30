@@ -33,7 +33,7 @@
    (else (≡ v l))))
 
 (defmacro suggest [expr orig alt]
-  `(log (.format "In `{0}`, you may want to use `{1}` instead of `{2}` in the arglist."
+  `(log (.format "; In `{0}`, you may want to use `{1}` instead of `{2}` in the arglist."
                  (.rstrip (hypformat ~expr) "\n")
                  (.rstrip (hypformat ~alt) "\n")
                  (.rstrip (hypformat ~orig) "\n"))))
