@@ -42,6 +42,16 @@
   ;; (unless test (do x)) => (unless test x)
   [`(unless ~?test (do . ~?body))
    `(unless ~?test . ~?body)]
+  ;; (fn [...] (do x)) => (fn [...] x)
+  [`(fn ~?args (do . ~?body))
+   `(fn ~?args . ~?body)]
+  ;; (defn [...] (do x)) => (defn [...] x)
+  ;; (defun [...] (do x)) => (defun [...] x)
+  (fresh [op name args body]
+         (≡ expr `(~op ~name ~args (do . ~body)))
+         (memberᵒ op `[defn defun defn-alias defun-alias])
+         (≡ out `(~op ~name ~args . ~body)))
+  ;; (defn [...
   ;; (if test a) => (when test a)
   [`(if ~?test ~?branch)
    `(when ~?test ~?branch)]

@@ -61,6 +61,10 @@
                (if-not true a))
   (assert-step (if-not true a)
                (unless true a))
+  (assert-step (fn [a b c] (do (+ a b c) (inc a)))
+               (fn [a b c] (+ a b c) (inc a)))
+  (assert-step (defn foo [a b c] (do (+ a b c) (inc a)))
+               (defn foo [a b c] (+ a b c) (inc a)))
   (assert-step (if true a)
                (when true a))
   (assert-step (let [[a 1] [b 2]]
