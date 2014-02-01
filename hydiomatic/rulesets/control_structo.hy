@@ -50,16 +50,15 @@
    `(fn ~?args ~?docstring . ~?body)]
   ;; (defn [...] (do x)) => (defn [...] x)
   ;; (defun [...] (do x)) => (defun [...] x)
-  (fresh [op name args body]
-         (≡ expr `(~op ~name ~args (do . ~body)))
-         (memberᵒ op `[defn defun defn-alias defun-alias])
-         (≡ out `(~op ~name ~args . ~body)))
   ;; (defn [...] "..." (do x)) => (defn "..." [...] x)
   ;; (defun [...] "..." (do x)) => (defun "..." [...] x)
-  (fresh [op name args docstring body]
-         (≡ expr `(~op ~name ~args ~docstring (do . ~body)))
-         (memberᵒ op `[defn defun defn-alias defun-alias])
-         (≡ out `(~op ~name ~args ~docstring . ~body)))
+  (fresh [op name args body docstring]
+         (condᵉ
+          [(≡ expr `(~op ~name ~args (do . ~body)))
+           (≡ out `(~op ~name ~args . ~body))]
+          [(≡ expr `(~op ~name ~args ~docstring (do . ~body)))
+           (≡ out `(~op ~name ~args ~docstring . ~body))])
+         (memberᵒ op `[defn defun defn-alias defun-alias]))
   ;; (if test a) => (when test a)
   [`(if ~?test ~?branch)
    `(when ~?test ~?branch)]
