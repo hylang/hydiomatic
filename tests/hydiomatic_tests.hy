@@ -26,6 +26,16 @@
   `(assert (= (simplify '~expr rules/experimental)
               '~expected)))
 
+(defmacro/g! wrap-stdout [&rest body]
+  `(do
+    (import [sys] [io [StringIO]])
+    (setv ~g!old-stdout sys.stdout)
+    (setv sys.stdout (StringIO))
+    (setv ~g!result (do ~@body))
+    (setv ~g!stdout (.getvalue sys.stdout))
+    (setv sys.stdout ~g!old-stdout)
+    [~g!stdout ~g!result]))
+
 (defn test-rules-arithmetico []
   (assert-step (+ 2 1) (inc 2))
   (assert-step (+ 1 2) (inc 2))
@@ -255,3 +265,16 @@
   (assert-simplify {"foo" "bar"} {"foo" "bar"})
   (assert (= (type (simplify '{"foo" "bar"}))
              HyDict)))
+
+(defn test-warnings []
+  (assert (= (wrap-stdout
+              (simplify-step '(defn nodocs [a] (inc a))
+                             rules/experimental))
+             ["; Function `nodocs` has no docstring.\n"
+              `(defn nodocs [a] (inc a))]))
+
+  (assert (= (wrap-stdout
+              (simplify-step '(fn [a, b] (+ a b))
+                             rules/experimental))
+             ["; In `(fn [a, b] (+ a b))`, you may want to use `a` instead of `a,` in the arglist.\n"
+              `(fn [a, b] (+ a b))])))
