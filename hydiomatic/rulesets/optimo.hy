@@ -15,7 +15,8 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]]
-        [hy [HyExpression]])
+        [adderall.extra.misc [*]]
+        [hy [HyExpression HyString]])
 (require adderall.dsl)
 (require hydiomatic.macros)
 
@@ -34,6 +35,7 @@
            (≡ c `(~op ~fname ~params . ~new-body))]
           [(≡ expr `(~op ~fname ~params ~docstring
                          (let ~bindings . ~body)))
+           (typeᵒ docstring HyString)
            (≡ c `(~op ~fname ~params ~docstring . ~new-body))])
          (project [bindings body]
                   (≡ new-body (--transform-bindings bindings body)))

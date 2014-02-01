@@ -207,6 +207,14 @@
                  "This is my docstring"
                  (setv y (inc x))
                  (print x y)))
+  (assert-step (defn foo [x]
+                 (make-something)
+                 (let [[y (inc x)]]
+                   (print x y)))
+               (defn foo [x]
+                 (make-something)
+                 (let [[y (inc x)]]
+                   (print x y))))
 
   (assert-step (fn [x] (nil? x))
                nil?)
