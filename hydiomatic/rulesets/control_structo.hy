@@ -51,7 +51,6 @@
          (≡ expr `(~op ~name ~args (do . ~body)))
          (memberᵒ op `[defn defun defn-alias defun-alias])
          (≡ out `(~op ~name ~args . ~body)))
-  ;; (defn [...
   ;; (if test a) => (when test a)
   [`(if ~?test ~?branch)
    `(when ~?test ~?branch)]
