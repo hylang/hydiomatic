@@ -63,8 +63,16 @@
                (unless true a))
   (assert-step (fn [a b c] (do (+ a b c) (inc a)))
                (fn [a b c] (+ a b c) (inc a)))
+  (assert-step (fn [a b c] "This is my docstring!"
+                 (do (+ a b c) (inc a)))
+               (fn [a b c] "This is my docstring!"
+                 (+ a b c) (inc a)))
   (assert-step (defn foo [a b c] (do (+ a b c) (inc a)))
                (defn foo [a b c] (+ a b c) (inc a)))
+  (assert-step (defn foo [a b c] "This is my docstring!"
+                 (do (+ a b c) (inc a)))
+               (defn foo [a b c] "This is my docstring!"
+                 (+ a b c) (inc a)))
   (assert-step (if true a)
                (when true a))
   (assert-step (let [[a 1] [b 2]]
@@ -110,6 +118,8 @@
 (defn test-rules-syntaxo []
   (assert-step (defn foo (a b c) (+ a b c))
                (defn foo [a b c] (+ a b c)))
+  (assert-step (defn foo (a b c) "docstring!" (+ a b c))
+               (defn foo [a b c] "docstring!" (+ a b c)))
   (let [[alt (simplify-step '(defn foo (a b c) (+ a b c)))]]
     (assert (= (type (get alt 2))
                HyList)))
@@ -120,6 +130,9 @@
     (assert (= (type (get alt 2))
                HyList)))
   (let [[alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]]
+    (assert (= (type (get alt 2))
+               HyList)))
+  (let [[alt (simplify-step '(defn foo (a b c) "docstring!" (+ a b c)))]]
     (assert (= (type (get alt 2))
                HyList)))
 
@@ -186,12 +199,22 @@
                  (setv z (inc y))
                  (print x y)
                  (+ x y z)))
+  (assert-step (defn foo [x]
+                 "This is my docstring"
+                 (let [[y (inc x)]]
+                   (print x y)))
+               (defn foo [x]
+                 "This is my docstring"
+                 (setv y (inc x))
+                 (print x y)))
 
   (assert-step (fn [x] (nil? x))
                nil?)
   (assert-step (fn [x] (+ x 2))
                (fn [x] (+ x 2)))
   (assert-step (fn [a b] (mix a b))
+               mix)
+  (assert-step (fn [a b] "a docstring" (mix a b))
                mix)
   (assert-step (fn [a b] (+ a b))
                (fn [a b] (+ a b)))

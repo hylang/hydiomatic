@@ -45,12 +45,21 @@
   ;; (fn [...] (do x)) => (fn [...] x)
   [`(fn ~?args (do . ~?body))
    `(fn ~?args . ~?body)]
+  ;; (fn [...] "docstring" (do x)) => (fn [...] "docstring" x)
+  [`(fn ~?args ~?docstring (do . ~?body))
+   `(fn ~?args ~?docstring . ~?body)]
   ;; (defn [...] (do x)) => (defn [...] x)
   ;; (defun [...] (do x)) => (defun [...] x)
   (fresh [op name args body]
          (≡ expr `(~op ~name ~args (do . ~body)))
          (memberᵒ op `[defn defun defn-alias defun-alias])
          (≡ out `(~op ~name ~args . ~body)))
+  ;; (defn [...] "..." (do x)) => (defn "..." [...] x)
+  ;; (defun [...] "..." (do x)) => (defun "..." [...] x)
+  (fresh [op name args docstring body]
+         (≡ expr `(~op ~name ~args ~docstring (do . ~body)))
+         (memberᵒ op `[defn defun defn-alias defun-alias])
+         (≡ out `(~op ~name ~args ~docstring . ~body)))
   ;; (if test a) => (when test a)
   [`(if ~?test ~?branch)
    `(when ~?test ~?branch)]
