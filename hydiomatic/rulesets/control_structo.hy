@@ -14,7 +14,9 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [adderall.dsl [*]])
+(import [adderall.dsl [*]]
+        [adderall.extra.misc [*]]
+        [hy [HyString]])
 (require adderall.dsl)
 (require hydiomatic.macros)
 
@@ -57,6 +59,7 @@
           [(≡ expr `(~op ~name ~args (do . ~body)))
            (≡ out `(~op ~name ~args . ~body))]
           [(≡ expr `(~op ~name ~args ~docstring (do . ~body)))
+           (typeᵒ docstring HyString)
            (≡ out `(~op ~name ~args ~docstring . ~body))])
          (memberᵒ op `[defn defun defn-alias defun-alias]))
   ;; (if test a) => (when test a)

@@ -83,6 +83,8 @@
                  (do (+ a b c) (inc a)))
                (defn foo [a b c] "This is my docstring!"
                  (+ a b c) (inc a)))
+  (assert-step (defn foo [a b c] something (do (+ a b c) (inc a)))
+               (defn foo [a b c] something (do (+ a b c) (inc a))))
   (assert-step (if true a)
                (when true a))
   (assert-step (let [[a 1] [b 2]]
