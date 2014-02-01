@@ -17,7 +17,7 @@
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
         [hydiomatic.utils [*]]
-        [hy [HySymbol]])
+        [hy [HySymbol HyString]])
 (require adderall.dsl)
 (require adderall.debug)
 (require hydiomatic.macros)
@@ -56,4 +56,15 @@
           (else #ss))
          (project [expr x xstripped]
                   (suggest expr x (HySymbol xstripped)))
+         #uu)
+  ;; A function without a docstring is a bad function.
+  (fresh [op name vars docstring body rest x]
+         (≡ expr `(~op ~name ~vars . ~body))
+         (memberᵒ op `[fn defn defun defmacro])
+         (consᵒ docstring rest body)
+         (project [docstring rest name]
+                  (if (= (type docstring) HyString)
+                    #ss
+                    (log (.format "; Function `{0}` has no docstring."
+                                  (.rstrip (hypformat name))))))
          #uu))
