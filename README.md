@@ -25,10 +25,10 @@ $ pip install -r requirements.txt
 Usage
 -----
 
-The library can be used either via the `bin/hydiomatic` script:
+The library can be used either via the `bin/hydiomatic.hy` script:
 
 ```shell
-$ bin/hydiomatic FILENAME
+$ bin/hydiomatic.hy FILENAME
 ```
 
 Or programmatically:
