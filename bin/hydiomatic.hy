@@ -6,7 +6,7 @@
         [hy.cmdline [HyREPL]]
         [hy.completer [completion]]
         [hydiomatic.core [simplify]]
-        [hydiomatic.rules [rules/default rules/experimental]]
+        [hydiomatic.rules [rules/default rules/experimental rules/warnings]]
         [hydiomatic.utils [hypprint hypformat]]
         [difflib [unified-diff]])
 
@@ -55,7 +55,10 @@
         "help" "Print a unified diff of the original and the simplified file."})
 (apply parser.add_argument ["--experimental" "-e"]
        {"action" "store_true"
-         "help" "Use experimental rules too, with potential false positives."})
+        "help" "Use experimental rules too, with potential false positives."})
+(apply parser.add_argument ["--warnings" "-w"]
+       {"action" "store_true"
+        "help" "Instead of transforming, print warnings that have no transformation."})
 (apply parser.add_argument ["args"]
        {"nargs" argparse.REMAINDER
         "help" argparse.SUPPRESS})
@@ -74,6 +77,10 @@
  [options.dry-run
   (process-file identity hypprint (first options.args)
                 (pick-rules options.experimental))]
+
+ [options.warnings
+  (process-file simplify (fn [_ &optional [outermost nil]]) (first options.args)
+                rules/warnings)]
 
  [options.diff
   (for [f options.args]
