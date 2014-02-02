@@ -28,8 +28,11 @@ Usage
 The library can be used either via the `bin/hydiomatic.hy` script:
 
 ```shell
-$ bin/hydiomatic.hy FILENAME
+$ bin/hydiomatic.hy -d FILENAME
 ```
+
+For more information on what the script can do, run `bin/hydiomatic.hy
+--help`.
 
 Or programmatically:
 
