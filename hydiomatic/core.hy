@@ -16,7 +16,7 @@
 
 (import [adderall.dsl [*]]
         [hydiomatic.rules [*]]
-        [hydiomatic.utils [*]])
+        [hy.contrib.walk [prewalk]])
 (require adderall.dsl)
 
 (defn simplify-step [expr &optional [rules rules/default]]

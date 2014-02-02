@@ -18,22 +18,6 @@
              HyLambdaListKeyword HyKeyword HyCons]]
         [sys])
 
-(defn walk [inner outer form]
-  (cond
-   [(instance? HyExpression form)
-    (outer (HyExpression (map inner form)))]
-   [(instance? HyDict form)
-    (HyDict (outer (HyExpression (map inner form))))]
-   [(cons? form)
-    (outer (cons (inner (first form))
-                 (inner (rest form))))]
-   [(instance? list form)
-    ((type form) (outer (HyExpression (map inner form))))]
-   [true (outer form)]))
-
-(defn prewalk [f form]
-  (walk (fn [x] (prewalk f x)) identity (f form)))
-
 (defn -pprint [form]
   (cond
    [(instance? HyExpression form)

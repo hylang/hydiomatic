@@ -15,7 +15,7 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]])
-(import [hydiomatic.utils [prewalk]]
+(import [hy.contrib.walk [prewalk]]
         [functools [partial]])
 (require adderall.dsl)
 
