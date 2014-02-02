@@ -271,12 +271,12 @@
 (defn test-warnings []
   (assert (= (wrap-stdout
               (simplify-step '(defn nodocs [a] (inc a))
-                             rules/experimental))
+                             rules/warnings))
              ["; Function `nodocs` has no docstring.\n"
               `(defn nodocs [a] (inc a))]))
 
   (assert (= (wrap-stdout
               (simplify-step '(fn [a, b] (+ a b))
-                             rules/experimental))
+                             rules/warnings))
              ["; In `(fn [a, b] (+ a b))`, you may want to use `a` instead of `a,` in the arglist.\n"
               `(fn [a, b] (+ a b))])))

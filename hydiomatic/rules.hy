@@ -38,5 +38,8 @@
 (defn rules/experimental [expr q]
   (condᵉ
    [(rules/default expr q)]
-   [(rules/optimᵒ expr q)]
+   [(rules/optimᵒ expr q)]))
+
+(defn rules/warnings [expr q]
+  (condᵉ
    [(rules/warningsᵒ expr q)]))
