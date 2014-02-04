@@ -39,53 +39,55 @@
     rules/experimental
     rules/default))
 
-(def parser (apply argparse.ArgumentParser []
-                   {"prog" "hydiomatic"
-                    "usage" "%(prog)s [options] FILE"
-                    "formatter_class" argparse.RawDescriptionHelpFormatter}))
+(when (= --name-- "__main__")
 
-(apply parser.add_argument ["--repl" "-r"]
-       {"action" "store_true"
-        "help" "Launch a REPL instead of simplifying a file"})
-(apply parser.add_argument ["--dry-run" "-n"]
-       {"action" "store_true"
-        "help" "Output the parsed file without simplification"})
-(apply parser.add_argument ["--diff" "-d"]
-       {"action" "store_true"
-        "help" "Print a unified diff of the original and the simplified file."})
-(apply parser.add_argument ["--experimental" "-e"]
-       {"action" "store_true"
-        "help" "Use experimental rules too, with potential false positives."})
-(apply parser.add_argument ["--warnings" "-w"]
-       {"action" "store_true"
-        "help" "Instead of transforming, print warnings that have no transformation."})
-(apply parser.add_argument ["args"]
-       {"nargs" argparse.REMAINDER
-        "help" argparse.SUPPRESS})
+  (def parser (apply argparse.ArgumentParser []
+                     {"prog" "hydiomatic"
+                             "usage" "%(prog)s [options] FILE"
+                             "formatter_class" argparse.RawDescriptionHelpFormatter}))
 
-(def options (.parse_args parser (rest sys.argv)))
+  (apply parser.add_argument ["--repl" "-r"]
+         {"action" "store_true"
+                   "help" "Launch a REPL instead of simplifying a file"})
+  (apply parser.add_argument ["--dry-run" "-n"]
+         {"action" "store_true"
+                   "help" "Output the parsed file without simplification"})
+  (apply parser.add_argument ["--diff" "-d"]
+         {"action" "store_true"
+                   "help" "Print a unified diff of the original and the simplified file."})
+  (apply parser.add_argument ["--experimental" "-e"]
+         {"action" "store_true"
+                   "help" "Use experimental rules too, with potential false positives."})
+  (apply parser.add_argument ["--warnings" "-w"]
+         {"action" "store_true"
+                   "help" "Instead of transforming, print warnings that have no transformation."})
+  (apply parser.add_argument ["args"]
+         {"nargs" argparse.REMAINDER
+                  "help" argparse.SUPPRESS})
 
-(cond
- [options.repl (launch-repl)]
+  (def options (.parse_args parser (rest sys.argv)))
 
- [(and (!= (len options.args) 1)
-       (not options.diff))
-  (do
-   (.print_help parser)
-   (sys.exit 1))]
+  (cond
+   [options.repl (launch-repl)]
 
- [options.dry-run
-  (process-file identity hypprint (first options.args)
-                (pick-rules options.experimental))]
+   [(and (!= (len options.args) 1)
+         (not options.diff))
+    (do
+     (.print_help parser)
+     (sys.exit 1))]
 
- [options.warnings
-  (process-file simplify (fn [_ &optional [outermost nil]]) (first options.args)
-                rules/warnings)]
+   [options.dry-run
+    (process-file identity hypprint (first options.args)
+                  (pick-rules options.experimental))]
 
- [options.diff
-  (for [f options.args]
-    (do-diff f (pick-rules options.experimental)))]
+   [options.warnings
+    (process-file simplify (fn [_ &optional [outermost nil]]) (first options.args)
+                  rules/warnings)]
 
- [true
-  (process-file simplify hypprint (first options.args)
-                nil)])
+   [options.diff
+    (for [f options.args]
+      (do-diff f (pick-rules options.experimental)))]
+
+   [true
+    (process-file simplify hypprint (first options.args)
+                  nil)]))
