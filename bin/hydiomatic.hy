@@ -90,4 +90,4 @@
 
    [true
     (process-file simplify hypprint (first options.args)
-                  nil)]))
+                  (pick-rules options.experimental))]))
