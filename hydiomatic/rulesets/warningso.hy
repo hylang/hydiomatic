@@ -67,4 +67,20 @@
                     #ss
                     (log (.format "; Function `{0}` has no docstring."
                                   (.rstrip (hypformat name))))))
+         #uu)
+  ;; (firstᵒ l f) (restᵒ l r) => (consᵒ f r l)
+  (fresh [l f r foexp roexp t]
+         (condᵉ
+          [(≡ foexp `(firsto ~l ~f))]
+          [(≡ foexp `(firstᵒ ~l ~f))])
+         (condᵉ
+          [(≡ roexp `(resto ~l ~r))]
+          [(≡ roexp `(restᵒ ~l ~r))])
+         (memberᵒ foexp expr)
+         (memberᵒ roexp expr)
+         (project [foexp roexp f r l]
+                  (log (.format "; Instead of `{0}` and `{1}`, consider using `{2}`."
+                                (.rstrip (hypformat foexp))
+                                (.rstrip (hypformat roexp))
+                                (.rstrip (hypformat `(consᵒ ~f ~r ~l))))))
          #uu))

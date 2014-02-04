@@ -279,4 +279,14 @@
               (simplify-step '(fn [a, b] (+ a b))
                              rules/warnings))
              ["; In `(fn [a, b] (+ a b))`, you may want to use `a` instead of `a,` in the arglist.\n"
-              `(fn [a, b] (+ a b))])))
+              `(fn [a, b] (+ a b))]))
+
+  (assert (= (wrap-stdout
+              (simplify-step '(fresh [f r]
+                                     (firstᵒ l f)
+                                     (restᵒ l r))
+                             rules/warnings))
+             ["; Instead of `(firstᵒ l f)` and `(restᵒ l r)`, consider using `(consᵒ f r l)`.\n"
+              `(fresh [f r]
+                      (firstᵒ l f)
+                      (restᵒ l r))])))
