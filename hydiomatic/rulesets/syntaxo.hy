@@ -22,12 +22,12 @@
 
 (defrules [rules/syntaxᵒ rules/syntaxo]
   ;; (defn foo (x) ...) => (defn foo [x] ...)
-  (fresh [op fname params body]
-         (memberᵒ op `[defn defun defn-alias defun-alias])
-         (≡ expr `(~op ~fname ~params . ~body))
-         (typeᵒ params HyExpression)
-         (project [params]
-                  (≡ out `(~op ~fname ~(HyList params) . ~body))))
+  (fresh [?op ?fname ?params ?body]
+         (memberᵒ ?op `[defn defun defn-alias defun-alias])
+         (≡ expr `(~?op ~?fname ~?params . ~?body))
+         (typeᵒ ?params HyExpression)
+         (project [?params]
+                  (≡ out `(~?op ~?fname ~(HyList ?params) . ~?body))))
   ;; (isinstance x klass) => (instance? klass x)
   [`(isinstance ~?x ~?klass) `(instance? ~?klass ~?x)]
   ;; (instance? float x) => (float? x)
@@ -45,30 +45,30 @@
   ;; (-> a) => a
   [`(-> ~?a) ?a]
   ;; (-> (-> x) y) => (-> x y)
-  (fresh [inner x y o]
-         (≡ expr `(-> ~inner . ~y))
-         (≡ inner `(-> . ~x))
-         (≡ o `(-> . ~x))
-         (typeᵒ inner HyExpression)
-         (typeᵒ x HyExpression)
-         (typeᵒ y HyExpression)
-         (appendᵒ o y out))
+  (fresh [?inner ?x ?y ?o]
+         (≡ expr `(-> ~?inner . ~?y))
+         (≡ ?inner `(-> . ~?x))
+         (≡ ?o `(-> . ~?x))
+         (typeᵒ ?inner HyExpression)
+         (typeᵒ ?x HyExpression)
+         (typeᵒ ?y HyExpression)
+         (appendᵒ ?o ?y out))
   ;; (kwapply (.foo bar baz) {...}) => (apply bar.foo [baz] {...})
-  (fresh [target kwargs method call-name params new-params]
-         (≡ expr `(kwapply ~target ~kwargs))
-         (typeᵒ target HyExpression)
-         (firstᵒ target method)
-         (project [method]
-                  (≡ true (.startswith method "."))
-                  (fresh [m o]
-                         (≡ target `(~m ~o . ~params))
-                         (project [params m o]
-                                  (≡ new-params (HyList params))
-                                  (≡ call-name (+ o m)))))
-         (≡ out `(apply ~call-name ~new-params ~kwargs)))
+  (fresh [?target ?kwargs ?method ?call-name ?params ?new-params]
+         (≡ expr `(kwapply ~?target ~?kwargs))
+         (typeᵒ ?target HyExpression)
+         (firstᵒ ?target ?method)
+         (project [?method]
+                  (≡ true (.startswith ?method "."))
+                  (fresh [?m ?o]
+                         (≡ ?target `(~?m ~?o . ~?params))
+                         (project [?params ?m ?o]
+                                  (≡ ?new-params (HyList ?params))
+                                  (≡ ?call-name (+ ?o ?m)))))
+         (≡ out `(apply ~?call-name ~?new-params ~?kwargs)))
   ;; (kwapply (foo bar baz) {...} => (apply foo [bar baz] {...})
-  (fresh [method params kwargs new-params]
-         (≡ expr `(kwapply (~method . ~params) ~kwargs))
-         (project [params]
-                  (≡ new-params (HyList params)))
-         (≡ out `(apply ~method ~new-params ~kwargs))))
+  (fresh [?method ?params ?kwargs ?new-params]
+         (≡ expr `(kwapply (~?method . ~?params) ~?kwargs))
+         (project [?params]
+                  (≡ ?new-params (HyList ?params)))
+         (≡ out `(apply ~?method ~?new-params ~?kwargs))))

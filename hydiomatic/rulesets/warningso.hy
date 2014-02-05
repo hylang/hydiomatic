@@ -40,47 +40,47 @@
 
 (defrules [rules/warningsᵒ rules/warningso]
   ;; (fn [x, y] (foo x y)) => WARN on using x,!
-  (fresh [op vars body x xstripped]
-         (≡ expr `(~op ~vars . ~body))
-         (memberᵒ op `[fn defn defun defmacro])
-         (memberᵒ x vars)
-         (typeᵒ x HySymbol)
-         (project [x]
-                  (≡ xstripped (.rstrip x ","))
-                  (if (.endswith x ",")
+  (fresh [?op ?vars ?body ?x ?xstripped]
+         (≡ expr `(~?op ~?vars . ~?body))
+         (memberᵒ ?op `[fn defn defun defmacro])
+         (memberᵒ ?x ?vars)
+         (typeᵒ ?x HySymbol)
+         (project [?x]
+                  (≡ ?xstripped (.rstrip ?x ","))
+                  (if (.endswith ?x ",")
                     #ss
                     #uu))
-         (recmemberᵒ xstripped body)
+         (recmemberᵒ ?xstripped ?body)
          (condᵉ
-          [(recmemberᵒ x body) #uu]
+          [(recmemberᵒ ?x ?body) #uu]
           (else #ss))
-         (project [expr x xstripped]
-                  (suggest expr x (HySymbol xstripped)))
+         (project [expr ?x ?xstripped]
+                  (suggest expr ?x (HySymbol ?xstripped)))
          #uu)
   ;; A function without a docstring is a bad function.
-  (fresh [op name vars docstring body rest x]
-         (≡ expr `(~op ~name ~vars . ~body))
-         (memberᵒ op `[fn defn defun defmacro])
-         (consᵒ docstring rest body)
-         (project [docstring rest name]
-                  (if (= (type docstring) HyString)
+  (fresh [?op ?name ?vars ?docstring ?body ?rest]
+         (≡ expr `(~?op ~?name ~?vars . ~?body))
+         (memberᵒ ?op `[fn defn defun defmacro])
+         (consᵒ ?docstring ?rest ?body)
+         (project [?docstring ?rest ?name]
+                  (if (= (type ?docstring) HyString)
                     #ss
                     (log (.format "; Function `{0}` has no docstring."
-                                  (.rstrip (hypformat name))))))
+                                  (.rstrip (hypformat ?name))))))
          #uu)
   ;; (firstᵒ l f) (restᵒ l r) => (consᵒ f r l)
-  (fresh [l f r foexp roexp t]
+  (fresh [?l ?f ?r ?foexp ?roexp ?t]
          (condᵉ
-          [(≡ foexp `(firsto ~l ~f))]
-          [(≡ foexp `(firstᵒ ~l ~f))])
+          [(≡ ?foexp `(firsto ~?l ~?f))]
+          [(≡ ?foexp `(firstᵒ ~?l ~?f))])
          (condᵉ
-          [(≡ roexp `(resto ~l ~r))]
-          [(≡ roexp `(restᵒ ~l ~r))])
-         (memberᵒ foexp expr)
-         (memberᵒ roexp expr)
-         (project [foexp roexp f r l]
+          [(≡ ?roexp `(resto ~?l ~?r))]
+          [(≡ ?roexp `(restᵒ ~?l ~?r))])
+         (memberᵒ ?foexp expr)
+         (memberᵒ ?roexp expr)
+         (project [?foexp ?roexp ?f ?r ?l]
                   (log (.format "; Instead of `{0}` and `{1}`, consider using `{2}`."
-                                (.rstrip (hypformat foexp))
-                                (.rstrip (hypformat roexp))
-                                (.rstrip (hypformat `(consᵒ ~f ~r ~l))))))
+                                (.rstrip (hypformat ?foexp))
+                                (.rstrip (hypformat ?roexp))
+                                (.rstrip (hypformat `(consᵒ ~?f ~?r ~?l))))))
          #uu))

@@ -54,14 +54,14 @@
   ;; (defun [...] (do x)) => (defun [...] x)
   ;; (defn [...] "..." (do x)) => (defn "..." [...] x)
   ;; (defun [...] "..." (do x)) => (defun "..." [...] x)
-  (fresh [op name args body docstring]
+  (fresh [?op ?name ?args ?body ?docstring]
          (condᵉ
-          [(≡ expr `(~op ~name ~args (do . ~body)))
-           (≡ out `(~op ~name ~args . ~body))]
-          [(≡ expr `(~op ~name ~args ~docstring (do . ~body)))
-           (typeᵒ docstring HyString)
-           (≡ out `(~op ~name ~args ~docstring . ~body))])
-         (memberᵒ op `[defn defun defn-alias defun-alias]))
+          [(≡ expr `(~?op ~?name ~?args (do . ~?body)))
+           (≡ out `(~?op ~?name ~?args . ~?body))]
+          [(≡ expr `(~?op ~?name ~?args ~?docstring (do . ~?body)))
+           (typeᵒ ?docstring HyString)
+           (≡ out `(~?op ~?name ~?args ~?docstring . ~?body))])
+         (memberᵒ ?op `[defn defun defn-alias defun-alias]))
   ;; (if test a) => (when test a)
   [`(if ~?test ~?branch)
    `(when ~?test ~?branch)]
