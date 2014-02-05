@@ -50,6 +50,8 @@
   ;; (fn [...] "docstring" (do x)) => (fn [...] "docstring" x)
   [`(fn ~?args ~?docstring (do . ~?body))
    `(fn ~?args ~?docstring . ~?body)]
+  ;; (try (do ...)) => (try ...)
+  [`(try (do . ~?body)) `(try . ~?body)]
   ;; (defn [...] (do x)) => (defn [...] x)
   ;; (defun [...] (do x)) => (defun [...] x)
   ;; (defn [...] "..." (do x)) => (defn "..." [...] x)

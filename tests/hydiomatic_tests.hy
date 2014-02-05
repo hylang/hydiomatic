@@ -77,6 +77,8 @@
                  (do (+ a b c) (inc a)))
                (fn [a b c] "This is my docstring!"
                  (+ a b c) (inc a)))
+  (assert-step (try (do (something) (catch [e Exception] (pass))))
+               (try (something) (catch [e Exception] (pass))))
   (assert-step (defn foo [a b c] (do (+ a b c) (inc a)))
                (defn foo [a b c] (+ a b c) (inc a)))
   (assert-step (defn foo [a b c] "This is my docstring!"
