@@ -27,34 +27,34 @@
 (defrules [rules/optimᵒ rules/optimo]
   ;; (defn foo [x] (let [[y (inc x)]] ...))
   ;;  => (defn foo [x] (setv y (inc x)) ...)
-  (fresh [?op ?fname ?params ?docstring ?bindings ?body ?new-body ?c]
-         (memberᵒ ?op `[defn defun defn-alias defun-alias])
-         (condᵉ
-          [(≡ expr `(~?op ~?fname ~?params
-                          (let ~?bindings . ~?body)))
-           (≡ ?c `(~?op ~?fname ~?params . ~?new-body))]
-          [(≡ expr `(~?op ~?fname ~?params ~?docstring
-                          (let ~?bindings . ~?body)))
-           (typeᵒ ?docstring HyString)
-           (≡ ?c `(~?op ~?fname ~?params ~?docstring . ~?new-body))])
-         (project [?bindings ?body]
-                  (≡ ?new-body (--transform-bindings-- ?bindings ?body)))
-         (project [?c]
-                  (≡ out (HyExpression ?c))))
+  (prep
+   (memberᵒ ?op `[defn defun defn-alias defun-alias])
+   (condᵉ
+    [(≡ expr `(~?op ~?fname ~?params
+                    (let ~?bindings . ~?body)))
+     (≡ ?c `(~?op ~?fname ~?params . ~?new-body))]
+    [(≡ expr `(~?op ~?fname ~?params ~?docstring
+                    (let ~?bindings . ~?body)))
+     (typeᵒ ?docstring HyString)
+     (≡ ?c `(~?op ~?fname ~?params ~?docstring . ~?new-body))])
+   (project [?bindings ?body]
+            (≡ ?new-body (--transform-bindings-- ?bindings ?body)))
+   (project [?c]
+            (≡ out (HyExpression ?c))))
   ;; (fn [x] (foo x)) => foo
   ;;  (for certain values of foo)
-  (fresh [?f ?op ?xs ?docstring]
-         (condᵉ
-          [(≡ expr `(~?f ~?xs (~?op . ~?xs)))]
-          [(≡ expr `(~?f ~?xs ~?docstring (~?op . ~?xs)))])
-         (memberᵒ ?f `[fn lambda])
-         (condᵉ
-          [(memberᵒ ?op `[and or not ~ del
-                          quote
-                          throw raise
-                          = != < <= > >= is in is-not not-in
-                          % / // ** << >>  | ^ &
+  (prep
+   (condᵉ
+    [(≡ expr `(~?f ~?xs (~?op . ~?xs)))]
+    [(≡ expr `(~?f ~?xs ~?docstring (~?op . ~?xs)))])
+   (memberᵒ ?f `[fn lambda])
+   (condᵉ
+    [(memberᵒ ?op `[and or not ~ del
+                    quote
+                    throw raise
+                    = != < <= > >= is in is-not not-in
+                    % / // ** << >>  | ^ &
                           + * -
                           += /= //= *= -= %= **= <<= >>= |= ^= &=])
-           (≡ out expr)]
-          (else (≡ out ?op)))))
+     (≡ out expr)]
+    (else (≡ out ?op)))))
