@@ -20,7 +20,7 @@
 (require adderall.dsl)
 (require hydiomatic.macros)
 
-(defn --transform-bindings [bindings body]
+(defn --transform-bindings-- [bindings body]
   (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
     (+ new-bindings body)))
 
@@ -38,7 +38,7 @@
            (typeᵒ ?docstring HyString)
            (≡ ?c `(~?op ~?fname ~?params ~?docstring . ~?new-body))])
          (project [?bindings ?body]
-                  (≡ ?new-body (--transform-bindings ?bindings ?body)))
+                  (≡ ?new-body (--transform-bindings-- ?bindings ?body)))
          (project [?c]
                   (≡ out (HyExpression ?c))))
   ;; (fn [x] (foo x)) => foo
