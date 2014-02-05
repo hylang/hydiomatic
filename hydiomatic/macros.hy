@@ -15,27 +15,16 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]])
-(import [hy.contrib.walk [prewalk]]
-        [functools [partial]])
 (require adderall.dsl)
 
 (eval-and-compile
- (defn prep [freshes expr]
-   (when (and (instance? HySymbol expr)
-              (.startswith expr "?"))
-     (.add freshes expr))
-   expr)
-
  (defn rule [rule]
    (if (instance? HyExpression rule)
      `[~rule]
-     (let [[[pat subst] rule]
-           [freshes (set [])]]
-       (prewalk (partial prep freshes) pat)
-       (setv freshes (HyList freshes))
-       `[(fresh ~freshes
-                 (≡ expr ~pat)
-                 (≡ out ~subst))]))))
+     (let [[[pat subst] rule]]
+       `[(prep
+          (≡ expr ~pat)
+          (≡ out ~subst))]))))
 
 (defmacro defrules [aliases &rest rules]
   `(defn-alias [~@aliases] [expr out]
