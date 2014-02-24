@@ -1,3 +1,4 @@
 monaxhyd>=0.1.0
+toolz>=0.5.2
 -e git://github.com/hylang/hy.git@master#egg=hy
 -e git://github.com/algernon/adderall.git@master#egg=adderall
