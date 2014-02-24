@@ -29,7 +29,7 @@
    [(instance? HyKeyword form)
     (string (rest (rest form)))]
    [(or (instance? HyString form) (string? form))
-    (string (+ "\"" (str form) "\""))]
+    (string (+ "\"" (string form) "\""))]
    [(or (instance? HyDict form) (instance? dict form))
     (+ "{" (.join " " (map -pprint form)) "}")]
    [(instance? list form)
