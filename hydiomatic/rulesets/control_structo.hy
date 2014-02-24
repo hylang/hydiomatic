@@ -65,19 +65,16 @@
      (≡ out `(~?op ~?name ~?args ~?docstring . ~?body))])
    (memberᵒ ?op `[defn defun defn-alias defun-alias]))
   ;; (if test a) => (when test a)
-  ;; unless a is an unquote-splice
-  (prep
-   (≡ expr `(if ~?test ~?branch))
-   (condᵉ
-    [(firstᵒ ?branch `unquote-splice) (≡ out expr)]
-    (else (≡ out `(when ~?test ~?branch)))))
   ;; (if-not test a) => (unless test a)
   ;; unless a is an unquote-splice
   (prep
-   (≡ expr `(if-not ~?test ~?branch))
+   (≡ expr `(~?op ~?test ~?branch))
+   (condᵉ
+    [(≡ ?op `if) (≡ ?new-op `when)]
+    [(≡ ?op `if-not) (≡ ?new-op `unless)])
    (condᵉ
     [(firstᵒ ?branch `unquote-splice) (≡ out expr)]
-    (else (≡ out `(unless ~?test ~?branch)))))
+    (else (≡ out `(~?new-op ~?test ~?branch)))))
   ;; (let [...] (do ...)) => (let [...] ...)
   [`(let ~?bindings (do . ~?exprs)) `(let ~?bindings . ~?exprs)]
   ;; (loop [...] (do ...)) => (loop [...] ...)
