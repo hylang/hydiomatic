@@ -41,4 +41,7 @@
   ;; (not (= ...)) => (!= ...)
   [`(not (= . ~?xs)) `(!= . ~?xs)]
   ;; (not (in ...)) => (not-in ...)
-  [`(not (in . ~?xs)) `(not-in . ~?xs)])
+  [`(not (in . ~?xs)) `(not-in . ~?xs)]
+  ;; (if-not (is ...) ...) => (if (is-not ...) ...)
+  [`(if-not (is . ~?xs) . ~?ys)
+   `(if (is-not . ~?xs) . ~?ys)])

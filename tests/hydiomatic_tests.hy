@@ -124,7 +124,9 @@
   (assert-step (= (% n 2) 1) (odd? n))
   (assert-step (not (is a b c)) (is-not a b c))
   (assert-step (not (= a b c)) (!= a b c))
-  (assert-step (not (in a b c)) (not-in a b c)))
+  (assert-step (not (in a b c)) (not-in a b c))
+  (assert-step (if-not (is condition False) 'yes 'no)
+               (if (is-not condition False) 'yes 'no)))
 
 (defn test-rules-collectiono []
   (assert-step (get coll 0) (first coll))
