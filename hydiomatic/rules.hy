@@ -30,8 +30,8 @@
   (condᵉ
    [(rules/arithmeticᵒ expr q)]
    [(rules/quoteᵒ expr q)]
-   [(rules/control-structᵒ expr q)]
    [(rules/equalityᵒ expr q)]
+   [(rules/control-structᵒ expr q)]
    [(rules/collectionᵒ expr q)]
    [(rules/syntaxᵒ expr q)]))
 

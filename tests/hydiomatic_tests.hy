@@ -271,6 +271,10 @@
                    (def a {"foo" (inc 1)}))
   (assert-simplify (= (len coll) 0)
                    (empty? coll))
+  (assert-simplify (defmacro if-truth [test &rest branches]
+                     (if (not (is ~test)) ~@branches))
+                   (defmacro if-truth [test &rest branches]
+                     (if (is-not ~test) ~@branches)))
 
   (assert-simplify {"foo" "bar"} {"foo" "bar"})
   (assert (= (type (simplify '{"foo" "bar"}))
