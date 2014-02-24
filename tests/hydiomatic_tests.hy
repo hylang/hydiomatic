@@ -57,6 +57,8 @@
                (unless true :no))
   (assert-step (if true (do (and this that)))
                (when true (and this that)))
+  (assert-step (if true ~@a)
+               (if true ~@a))
   (assert-step (when (not true) :hello)
                (unless true :hello))
   (assert-step (do something)
@@ -71,6 +73,8 @@
                (if-not true a))
   (assert-step (if-not true a)
                (unless true a))
+  (assert-step (if-not true ~@a)
+               (if-not true ~@a))
   (assert-step (fn [a b c] (do (+ a b c) (inc a)))
                (fn [a b c] (+ a b c) (inc a)))
   (assert-step (fn [a b c] "This is my docstring!"
