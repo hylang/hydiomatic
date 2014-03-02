@@ -19,12 +19,19 @@
         [hy.contrib.walk [prewalk]])
 (require adderall.dsl)
 
+(defn simplify-step-by-rule [rule expr]
+  (let [[alts (run* [q] (rule expr q))]]
+    (if (empty? alts)
+      expr
+      (first alts))))
+
 (defn simplify-step [expr &optional [rules rules/default]]
   (if (iterable? expr)
-    (let [[alts (run* [q] (rules expr q))]]
-      (if (empty? alts)
-        expr
-        (first alts)))
+    (do
+     (setv new-expr expr)
+     (for [rule rules]
+       (setv new-expr (simplify-step-by-rule rule new-expr)))
+     new-expr)
     expr))
 
 (defn simplify [expr &optional [rules rules/default]]

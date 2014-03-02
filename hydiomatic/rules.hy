@@ -26,20 +26,17 @@
 (require adderall.dsl)
 (require hydiomatic.macros)
 
-(defn rules/default [expr q]
-  (condᵉ
-   [(rules/arithmeticᵒ expr q)]
-   [(rules/quoteᵒ expr q)]
-   [(rules/equalityᵒ expr q)]
-   [(rules/control-structᵒ expr q)]
-   [(rules/collectionᵒ expr q)]
-   [(rules/syntaxᵒ expr q)]))
+(def rules/default
+  [rules/arithmeticᵒ
+   rules/quoteᵒ
+   rules/equalityᵒ
+   rules/control-structᵒ
+   rules/collectionᵒ
+   rules/syntaxᵒ])
 
-(defn rules/experimental [expr q]
-  (condᵉ
-   [(rules/default expr q)]
-   [(rules/optimᵒ expr q)]))
+(def rules/experimental
+  (+ rules/default
+     [rules/optimᵒ]))
 
-(defn rules/warnings [expr q]
-  (condᵉ
-   [(rules/warningsᵒ expr q)]))
+(def rules/warnings
+  [rules/warningsᵒ])
