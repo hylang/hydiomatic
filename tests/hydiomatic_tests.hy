@@ -174,6 +174,11 @@
                (apply self.method [param1 param2]
                       {"key" "value"}))
 
+  (assert-step (kwapply (.method (some-stuff))
+                        {"key" "value"})
+               (apply .method [(some-stuff)]
+                      {"key" "value"}))
+
   (assert-step (kwapply (method param1 param2)
                         {"key" "value"})
                (apply method [param1 param2]

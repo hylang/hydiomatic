@@ -62,6 +62,7 @@
             (≡ true (.startswith ?method "."))
             (fresh [?m ?o]
                    (≡ ?target `(~?m ~?o . ~?params))
+                   (typeᵒ ?o HySymbol)
                    (project [?params ?m ?o]
                             (≡ ?new-params (HyList ?params))
                             (≡ ?call-name (+ ?o ?m)))))
