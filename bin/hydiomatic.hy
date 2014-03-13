@@ -77,7 +77,7 @@
      (sys.exit 1))]
 
    [options.dry-run
-    (process-file identity hypprint (first options.args)
+    (process-file (fn [form rules] form) hypprint (first options.args)
                   (pick-rules options.experimental))]
 
    [options.warnings
