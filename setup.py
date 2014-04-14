@@ -26,6 +26,7 @@ setup(
         'hydiomatic': ['*.hy'],
         'hydiomatic.rulesets': ['*.hy'],
     },
+    scripts = ['bin/hydiomatic.hy'],
     author="Gergely Nagy",
     author_email="algernon@madhouse-project.org",
     long_description="""Static code analyser for Hy""",
