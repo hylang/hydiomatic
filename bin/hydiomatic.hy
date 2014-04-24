@@ -43,8 +43,8 @@
 
   (def parser (apply argparse.ArgumentParser []
                      {"prog" "hydiomatic"
-                             "usage" "%(prog)s [options] FILE"
-                             "formatter_class" argparse.RawDescriptionHelpFormatter}))
+                      "usage" "%(prog)s [options] FILE"
+                      "formatter_class" argparse.RawDescriptionHelpFormatter}))
 
   (apply parser.add_argument ["--repl" "-r"]
          {"action" "store_true"
