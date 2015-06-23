@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -18,16 +18,22 @@
              HyLambdaListKeyword HyKeyword HyCons]]
         [sys])
 
+(defn -hystringify [value]
+  (let [[sv (string value)]]
+    (if (.startswith sv "is_")
+      (+ (slice sv 3) "?")
+      sv)))
+
 (defn -pprint [form]
   (cond
    [(instance? HyExpression form)
     (+ "(" (.join " " (map -pprint form)) ")")]
    [(or (instance? HySymbol form) (instance? HyLambdaListKeyword form))
-    (string form)]
+    (-hystringify form)]
    [(or (instance? HyInteger form) (integer? form))
     (string form)]
    [(instance? HyKeyword form)
-    (string (rest (rest form)))]
+    (-hystringify (rest (rest form)))]
    [(or (instance? HyString form) (string? form))
     (string (+ "\"" (string form) "\""))]
    [(or (instance? HyDict form) (instance? dict form))
