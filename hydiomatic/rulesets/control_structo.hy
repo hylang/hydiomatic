@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -84,4 +84,6 @@
    (≡ expr `(loop [] (when ~?test . ~?body)))
    (appendᵒ ?exprs [`(recur)] ?body)
    (project [?exprs ?test]
-            (≡ out (HyExpression `(while ~?test . ~?exprs))))))
+            (≡ out (HyExpression `(while ~?test . ~?exprs)))))
+  ;; (while true (yield func)) => (repeatedly func)
+  [`(while true (yield ~?func)) `(repeatedly ~?func)])

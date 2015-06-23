@@ -109,7 +109,11 @@
                      (when (< i 10)
                        (recur (inc i)))))
   (assert-step (loop [] (when true (print "zing") (recur)))
-               (while true (print "zing"))))
+               (while true (print "zing")))
+  (assert-step (while true (yield (lambda []
+                                    true)))
+               (repeatedly (lambda []
+                             true))))
 
 (defn test-rules-equalityo []
   (assert-step (= 0 x) (zero? x))
