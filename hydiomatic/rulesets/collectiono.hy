@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -29,4 +29,6 @@
   ;;  => (empty? x)
   [`(= (len ~?x) 0) `(empty? ~?x)]
   [`(= 0 (len ~?x)) `(empty? ~?x)]
-  [`(zero? (len ~?x)) `(empty? ~?x)])
+  [`(zero? (len ~?x)) `(empty? ~?x)]
+  ;; (drop-last 1 x) => (butlast x)
+  [`(drop-last 1 ~?x) `(butlast ~?x)])

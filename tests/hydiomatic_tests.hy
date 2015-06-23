@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -133,7 +133,8 @@
   (assert-step (get coll 1) (second coll))
   (assert-step (slice coll 1) (rest coll))
   (assert-step (slice coll 2) (slice coll 2))
-  (assert-step (zero? (len coll)) (empty? coll)))
+  (assert-step (zero? (len coll)) (empty? coll))
+  (assert-step (drop-last 1 coll) (butlast coll)))
 
 (defn test-rules-syntaxo []
   (assert-step (defn foo (a b c) (+ a b c))
