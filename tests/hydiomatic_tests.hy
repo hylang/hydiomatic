@@ -134,7 +134,9 @@
   (assert-step (slice coll 1) (rest coll))
   (assert-step (slice coll 2) (slice coll 2))
   (assert-step (zero? (len coll)) (empty? coll))
-  (assert-step (drop-last 1 coll) (butlast coll)))
+  (assert-step (drop-last 1 coll) (butlast coll))
+  (assert-step (get coll -1) (last coll))
+  (assert-step (get (list coll) -1) (last (list coll))))
 
 (defn test-rules-syntaxo []
   (assert-step (defn foo (a b c) (+ a b c))

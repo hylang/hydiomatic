@@ -31,4 +31,6 @@
   [`(= 0 (len ~?x)) `(empty? ~?x)]
   [`(zero? (len ~?x)) `(empty? ~?x)]
   ;; (drop-last 1 x) => (butlast x)
-  [`(drop-last 1 ~?x) `(butlast ~?x)])
+  [`(drop-last 1 ~?x) `(butlast ~?x)]
+  ;; (get x -1) => (last x)
+  [`(get ~?x -1) `(last ~?x)])
