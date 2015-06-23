@@ -15,7 +15,7 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [hy [HyExpression HySymbol HyInteger HyString HyDict
-             HyLambdaListKeyword HyKeyword HyCons]]
+             HyKeyword HyCons]]
         [sys])
 
 (defn -hystringify [value]
@@ -28,7 +28,7 @@
   (cond
    [(instance? HyExpression form)
     (+ "(" (.join " " (map -pprint form)) ")")]
-   [(or (instance? HySymbol form) (instance? HyLambdaListKeyword form))
+   [(instance? HySymbol form)
     (-hystringify form)]
    [(or (instance? HyInteger form) (integer? form))
     (string form)]
