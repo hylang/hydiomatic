@@ -1,9 +1,9 @@
 Hydiomatic
 ==========
 
-[![Build Status](https://travis-ci.org/algernon/hydiomatic.png?branch=master)](https://travis-ci.org/algernon/hydiomatic)
-[![Downloads](https://pypip.in/d/hydiomatic/badge.png)](https://crate.io/packages/hydiomatic)
-[![Version](https://pypip.in/v/hydiomatic/badge.png)](https://crate.io/packages/hydiomatic)
+[![Build Status](https://img.shields.io/travis/algernon/hydiomatic.svg?style=flat-square)](https://travis-ci.org/algernon/hydiomatic)
+[![Downloads](https://img.shields.io/pypi/dm/hydiomatic.svg?style=flat-square)](https://pypi.python.org/pypi/hydiomatic)
+[![Version](https://img.shields.io/pypi/v/hydiomatic.svg?style=flat-square)](https://pypi.python.org/pypi/hydiomatic)
 
 Hydiomatic is a static code analyser for [Hy](http://hylang.org/),
 that can analyse a form, and suggest a simplification, or a more
