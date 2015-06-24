@@ -40,6 +40,8 @@
     (+ "{" (.join " " (map -pprint form)) "}")]
    [(instance? list form)
     (+ "[" (.join " " (map -pprint form)) "]")]
+   [(coll? form)
+    (-pprint (list form))]
    [(cons? form)
     (+ "(" (-pprint (first form)) " . " (-pprint (rest form)) ")")]
    [true
