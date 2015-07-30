@@ -22,7 +22,9 @@
   (let [[sv (string value)]]
     (if (.startswith sv "is_")
       (+ (slice sv 3) "?")
-      sv)))
+      (if (= sv "None")
+        "nil"
+        sv))))
 
 (defn -pprint [form]
   (cond
