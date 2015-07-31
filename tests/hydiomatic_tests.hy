@@ -315,28 +315,34 @@
                       (firstᵒ l f)
                       (restᵒ l r))])))
 
-(defmacro assert-step-cleanup [expr expected]
-  `(assert (= (simplify-step '~expr rules/grand-cleanup)
+(defmacro assert-cleanup [expr expected]
+  `(assert (= (simplify '~expr rules/grand-cleanup)
               '~expected)))
 
 (defn test-grand-cleanup []
-  (assert-step-cleanup (let [x] x)
-                       (let [x nil] x))
-  (assert-step-cleanup (let [[x 1]
-                             [y (+ x 2)]]
-                         (, x y))
-                       (let [x 1
-                             y (+ x 2)]
-                         (, x y)))
-  (assert-step-cleanup (with [[x 1] [y 2] z]
-                             (, x y z))
-                       (with [x 1 y 2 z nil]
-                             (, x y z)))
-  (assert-step-cleanup (let [[[x y] [1 2]]
-                             z
-                             [a (+ x y)]]
-                         (, a z))
-                       (let [[x y] [1 2]
-                             z nil
-                             a (+ x y)]
-                         (, a z))))
+  (assert-cleanup (let [x] x)
+                  (let [x nil] x))
+  (assert-cleanup (let [[x 1]
+                        [y (+ x 2)]]
+                    (, x y))
+                  (let [x 1
+                        y (+ x 2)]
+                    (, x y)))
+  (assert-cleanup (with [[x 1] [y 2] z]
+                        (, x y z))
+                  (with [x 1 y 2 z nil]
+                        (, x y z)))
+  (assert-cleanup (let [[[x y] [1 2]]
+                        z
+                        [a (+ x y)]]
+                    (, a z))
+                  (let [[x y] [1 2]
+                        z nil
+                        a (+ x y)]
+                    (, a z)))
+  (assert-cleanup (defn some-function []
+                    (let [[x 1]]
+                      x))
+                  (defn some-function []
+                    (let [x 1]
+                      x))))

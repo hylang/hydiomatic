@@ -31,6 +31,9 @@
                            expr)
     expr))
 
+(defn cleanup [expr]
+  (simplify* expr [rules/grand-cleanup-finishᵒ]))
+
 (defn simplify-step* [expr &optional [rules rules/default]]
   (if (iterable? expr)
     (do
@@ -54,7 +57,7 @@
   new-expr)
 
 (defn simplify [expr &optional [rules rules/default]]
-  (cleanup-step (simplify* expr rules)))
+  (cleanup (simplify* expr rules)))
 
 (defn simplifications [expr &optional [rules rules/default]]
   (setv stages [expr])
