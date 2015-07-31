@@ -345,4 +345,13 @@
                       x))
                   (defn some-function []
                     (let [x 1]
-                      x))))
+                      x)))
+  (assert-cleanup (for [x (range 5)
+                        y (range 5)]
+                    (do
+                     (print x y)
+                     (, x y)))
+                  (for [x (range 5)
+                        y (range 5)]
+                    (print x y)
+                    (, x y))))

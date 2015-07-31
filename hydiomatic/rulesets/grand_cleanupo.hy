@@ -48,7 +48,10 @@
    (condᵉ
     [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
     [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
-   (≡ out `(~?new-op ~?flat-bindings . ~?body))))
+   (≡ out `(~?new-op ~?flat-bindings . ~?body)))
+  ;; (for [...] (do ...)) => (for [...] ...)
+  [`(for ~?bindings (do . ~?body))
+   `(for ~?bindings . ~?body)])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
