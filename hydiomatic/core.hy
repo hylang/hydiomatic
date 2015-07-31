@@ -25,7 +25,16 @@
       expr
       (first alts))))
 
-(defn simplify-step [expr &optional [rules rules/default]]
+(defn cleanup-step [expr]
+  (if (iterable? expr)
+    (simplify-step-by-rule rules/grand-cleanup-finishᵒ
+                           expr)
+    expr))
+
+(defn cleanup [expr]
+  (simplify* expr [rules/grand-cleanup-finishᵒ]))
+
+(defn simplify-step* [expr &optional [rules rules/default]]
   (if (iterable? expr)
     (do
      (setv new-expr expr)
@@ -34,25 +43,31 @@
      new-expr)
     expr))
 
-(defn simplify [expr &optional [rules rules/default]]
-  (setv new-expr (prewalk (fn [x] (simplify-step x rules)) expr))
+(defn simplify-step [expr &optional [rules rules/default]]
+  (cleanup-step (simplify-step* expr rules)))
+
+(defn simplify* [expr &optional [rules rules/default]]
+  (setv new-expr (prewalk (fn [x] (simplify-step* x rules)) expr))
   (unless (= new-expr expr)
     (while true
-      (setv res (prewalk (fn [x] (simplify-step x rules)) new-expr))
+      (setv res (prewalk (fn [x] (simplify-step* x rules)) new-expr))
       (when (= res new-expr)
         (break))
       (setv new-expr res)))
   new-expr)
 
+(defn simplify [expr &optional [rules rules/default]]
+  (cleanup (simplify* expr rules)))
+
 (defn simplifications [expr &optional [rules rules/default]]
   (setv stages [expr])
-  (setv new-expr (prewalk (fn [x] (simplify-step x rules)) expr))
+  (setv new-expr (prewalk (fn [x] (simplify-step* x rules)) expr))
   (unless (= new-expr expr)
-    (.append stages new-expr)
+    (.append stages (cleanup-step new-expr))
     (while true
-      (setv res (prewalk (fn [x] (simplify-step x rules)) new-expr))
+      (setv res (prewalk (fn [x] (simplify-step* x rules)) new-expr))
       (when (= res new-expr)
         (break))
       (setv new-expr res)
-      (.append stages new-expr)))
+      (.append stages (cleanup-step new-expr))))
   stages)
