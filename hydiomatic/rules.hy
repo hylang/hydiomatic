@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -22,6 +22,7 @@
         [hydiomatic.rulesets.syntaxo [*]]
         [hydiomatic.rulesets.optimo [*]]
         [hydiomatic.rulesets.warningso [*]]
+        [hydiomatic.rulesets.grand-cleanupo [*]]
         [adderall.dsl [*]])
 (require adderall.dsl)
 (require hydiomatic.macros)
@@ -37,6 +38,10 @@
 (def rules/experimental
   (+ rules/default
      [rules/optimᵒ]))
+
+(def rules/grand-cleanup
+  (+ rules/default
+     [rules/grand-cleanupᵒ]))
 
 (def rules/warnings
   [rules/warningsᵒ])
