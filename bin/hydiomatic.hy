@@ -22,7 +22,8 @@
         [hy.cmdline [HyREPL]]
         [hy.completer [completion]]
         [hydiomatic.core [simplify]]
-        [hydiomatic.rules [rules/default rules/experimental rules/warnings]]
+        [hydiomatic.rules [rules/default rules/experimental
+                           rules/warnings rules/grand-cleanup]]
         [hydiomatic.utils [hypprint hypformat]]
         [difflib [unified-diff]])
 
@@ -50,10 +51,12 @@
                        "tofile" fn})]
       (sys.stdout.write line))))
 
-(defn pick-rules [experimental?]
-  (if experimental?
-    rules/experimental
-    rules/default))
+(defn pick-rules [experimental? grand-cleanup?]
+  (if grand-cleanup?
+    rules/grand-cleanup
+    (if experimental?
+      rules/experimental
+      rules/default)))
 
 (when (= --name-- "__main__")
 
@@ -77,6 +80,9 @@
   (apply parser.add_argument ["--warnings" "-w"]
          {"action" "store_true"
                    "help" "Instead of transforming, print warnings that have no transformation."})
+  (apply parser.add_argument ["--grand-cleanup" "-g"]
+         {"action" "store_true"
+                   "help" "Use the Grand Cleanup rules too."})
   (apply parser.add_argument ["args"]
          {"nargs" argparse.REMAINDER
                   "help" argparse.SUPPRESS})
@@ -94,7 +100,8 @@
 
    [options.dry-run
     (process-file (fn [form rules] form) hypprint (first options.args)
-                  (pick-rules options.experimental))]
+                  (pick-rules options.experimental
+                              options.grand_cleanup))]
 
    [options.warnings
     (process-file simplify (fn [_ &optional [outermost nil]]) (first options.args)
@@ -102,8 +109,10 @@
 
    [options.diff
     (for [f options.args]
-      (do-diff f (pick-rules options.experimental)))]
+      (do-diff f (pick-rules options.experimental
+                             options.grand_cleanup)))]
 
    [true
     (process-file simplify hypprint (first options.args)
-                  (pick-rules options.experimental))]))
+                  (pick-rules options.experimental
+                              options.grand_cleanup))]))
