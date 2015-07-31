@@ -331,4 +331,12 @@
   (assert-step-cleanup (with [[x 1] [y 2] z]
                              (, x y z))
                        (with [x 1 y 2 z nil]
-                             (, x y z))))
+                             (, x y z)))
+  (assert-step-cleanup (let [[[x y] [1 2]]
+                             z
+                             [a (+ x y)]]
+                         (, a z))
+                       (let [[x y] [1 2]
+                             z nil
+                             a (+ x y)]
+                         (, a z))))
