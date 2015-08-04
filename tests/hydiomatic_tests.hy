@@ -364,4 +364,37 @@
   (assert-cleanup (cond [(test) (one-thing)
                          (another-thing)])
                   (cond [(test) (one-thing)
-                         (another-thing)])))
+                         (another-thing)]))
+
+  (assert-cleanup (defclass Cat [Object]
+                    [[color "unknown"]
+                     [--init-- (fn [self color]
+                                 (setv self.color color)
+                                 None)]
+                     [describe (fn [self]
+                                 (print "Meow, I'm a " self.color
+                                        "colored cat!"))]])
+                  (defclass Cat [Object]
+                    [color "unknown"]
+
+                    (defn --init-- [self color]
+                      (setv self.color color)
+                      None)
+
+                    (defn describe [self]
+                      (print "Meow, I'm a " self.color
+                             "colored cat!"))))
+
+  (assert-cleanup (defclass Cat [Object]
+                    [[color "unknown"]])
+                  (defclass Cat [Object]
+                    [color "unknown"]))
+
+  (assert-cleanup (defclass Cat [Object]
+                    "This is the docstring"
+                    [[color "unknown"]
+                     [meow! (fn [self] (println "Meow2!"))]])
+                  (defclass Cat [Object]
+                    "This is the docstring"
+                    [color "unknown"]
+                    (defn meow! [self] (println "Meow2!")))))

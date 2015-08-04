@@ -16,7 +16,7 @@
 
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
-        [hy [HySymbol HyList]])
+        [hy [HySymbol HyList HyExpression]])
 (require adderall.dsl)
 (require hydiomatic.macros)
 
@@ -50,6 +50,22 @@
            (transform-listᵒ transformᵒ ?rest ?new-rest)
            (consᵒ ?new-first ?new-rest out)])))
 
+(defn partition-vars-and-fns [body]
+  (setv vars [])
+  (setv fns [])
+  (for [expr body]
+    (if (and (>= (len expr) 2)
+             (coll? (second expr))
+             (= (first (second expr)) `fn))
+      (.append fns expr)
+      (.append vars expr)))
+  (, vars fns))
+
+(defn transform-defnᵒ [in out]
+  (prep
+   (≡ in `[~?name (fn . ~?body)])
+   (≡ out `(defn ~?name . ~?body))))
+
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
   ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z nil] ...)
   ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z nil] ...)
@@ -74,7 +90,43 @@
   (prep
    (≡ expr `(cond . ~?conditions))
    (transform-listᵒ transform-conditionᵒ ?conditions ?new-conditions)
-   (≡ out `(cond . ~?new-conditions))))
+   (≡ out `(cond . ~?new-conditions)))
+  ;; (defclass A [...]
+  ;;   [[x 1]
+  ;;    [y 2]
+  ;;    [foo (fn [self] ...)]])
+  ;; =>
+  ;; (defclass A [...]
+  ;;   [x 1
+  ;;    y 2]
+  ;;   (defn foo [self] ...))
+  ;; + same with docstring
+  (prep
+   (≡ expr `(defclass ~?name ~?base-list
+              ~?body))
+   (project [?body]
+            (≡ (, ?vars ?fns) (partition-vars-and-fns ?body)))
+   (project [?vars ?fns]
+            (≡ ?new-vars (simple-flatten ?vars))
+            (transform-listᵒ transform-defnᵒ ?fns ?new-fns))
+   (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
+                   ~?new-vars . ~?new-fns))
+   (project [?new-form]
+            (≡ out (HyExpression ?new-form))))
+  (prep
+   (≡ expr `(defclass ~?name ~?base-list
+              ~?docstring
+              ~?body))
+   (project [?body]
+            (≡ (, ?vars ?fns) (partition-vars-and-fns ?body)))
+   (project [?vars ?fns]
+            (≡ ?new-vars (simple-flatten ?vars))
+            (transform-listᵒ transform-defnᵒ ?fns ?new-fns))
+   (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
+                   ~?docstring
+                   ~?new-vars . ~?new-fns))
+   (project [?new-form]
+            (≡ out (HyExpression ?new-form)))))
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
@@ -82,10 +134,13 @@
   (prep
    (≡ expr `(~?op . ~?args))
    (memberᵒ ?op `[$hydiomatic/let$
-                  $hydiomatic/with$])
+                  $hydiomatic/with$
+                  $hydiomatic/defclass$])
    (condᵉ
     [(≡ ?op `$hydiomatic/let$)
      (≡ ?new-op `let)]
     [(≡ ?op `$hydiomatic/with$)
-     (≡ ?new-op `with)])
+     (≡ ?new-op `with)]
+    [(≡ ?op `$hydiomatic/defclass$)
+     (≡ ?new-op `defclass)])
    (≡ out `(~?new-op . ~?args))))
