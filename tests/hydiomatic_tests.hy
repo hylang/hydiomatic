@@ -354,4 +354,14 @@
                   (for [x (range 5)
                         y (range 5)]
                     (print x y)
-                    (, x y))))
+                    (, x y)))
+  (assert-cleanup (cond [(test) (do (one-thing)
+                                    (another-thing))]
+                        [(test2) (effect)])
+                  (cond [(test) (one-thing)
+                         (another-thing)]
+                        [(test2) (effect)]))
+  (assert-cleanup (cond [(test) (one-thing)
+                         (another-thing)])
+                  (cond [(test) (one-thing)
+                         (another-thing)])))

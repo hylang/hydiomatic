@@ -39,6 +39,25 @@
            (transform-bindingsᵒ ?rest ?new-rest)
            (consᵒ ?new-binding ?new-rest out)])))
 
+(defn transform-conditionᵒ [in out]
+  (prep
+   (consᵒ ?test ?effects in)
+   (firstᵒ ?effects ?effect)
+   (condᵉ
+    [(≡ ?effect `(do . ~?body))
+     (≡ ?result `(~?test . ~?body))
+     (project [?result]
+              (≡ out (HyList ?result)))]
+    (else (≡ in out)))))
+
+(defn transform-conditionsᵒ [in out]
+  (prep
+   (condᵉ [(emptyᵒ in) (≡ in out)]
+          [(consᵒ ?condition ?rest in)
+           (transform-conditionᵒ ?condition ?new-condition)
+           (transform-conditionsᵒ ?rest ?new-rest)
+           (consᵒ ?new-condition ?new-rest out)])))
+
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
   ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z nil] ...)
   ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z nil] ...)
@@ -54,7 +73,16 @@
    (≡ out `(~?new-op ~?flat-bindings . ~?body)))
   ;; (for [...] (do ...)) => (for [...] ...)
   [`(for ~?bindings (do . ~?body))
-   `(for ~?bindings . ~?body)])
+   `(for ~?bindings . ~?body)]
+  ;; (cond [(test) (do ...)]
+  ;;       [(test2) (effect)])
+  ;; =>
+  ;; (cond [(test) ...]
+  ;;       [(test2) (effect)])
+  (prep
+   (≡ expr `(cond . ~?conditions))
+   (transform-conditionsᵒ ?conditions ?new-conditions)
+   (≡ out `(cond . ~?new-conditions))))
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
