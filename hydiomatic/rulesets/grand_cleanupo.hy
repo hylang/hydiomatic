@@ -31,14 +31,6 @@
    (condᵉ [(typeᵒ in HyList) (≡ out in)]
           (else (≡ out `[~in nil])))))
 
-(defn transform-bindingsᵒ [in out]
-  (prep
-   (condᵉ [(emptyᵒ in) (≡ in out)]
-          [(consᵒ ?binding ?rest in)
-           (transform-bindingᵒ ?binding ?new-binding)
-           (transform-bindingsᵒ ?rest ?new-rest)
-           (consᵒ ?new-binding ?new-rest out)])))
-
 (defn transform-conditionᵒ [in out]
   (prep
    (consᵒ ?test ?effects in)
@@ -50,13 +42,13 @@
               (≡ out (HyList ?result)))]
     (else (≡ in out)))))
 
-(defn transform-conditionsᵒ [in out]
+(defn transform-listᵒ [transformᵒ in out]
   (prep
    (condᵉ [(emptyᵒ in) (≡ in out)]
-          [(consᵒ ?condition ?rest in)
-           (transform-conditionᵒ ?condition ?new-condition)
-           (transform-conditionsᵒ ?rest ?new-rest)
-           (consᵒ ?new-condition ?new-rest out)])))
+          [(consᵒ ?first ?rest in)
+           (transformᵒ ?first ?new-first)
+           (transform-listᵒ transformᵒ ?rest ?new-rest)
+           (consᵒ ?new-first ?new-rest out)])))
 
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
   ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z nil] ...)
@@ -64,7 +56,7 @@
   (prep
    (≡ expr `(~?op ~?bindings . ~?body))
    (memberᵒ ?op `[let with])
-   (transform-bindingsᵒ ?bindings ?new-bindings)
+   (transform-listᵒ transform-bindingᵒ ?bindings ?new-bindings)
    (project [?new-bindings]
             (≡ ?flat-bindings (simple-flatten ?new-bindings)))
    (condᵉ
@@ -81,7 +73,7 @@
   ;;       [(test2) (effect)])
   (prep
    (≡ expr `(cond . ~?conditions))
-   (transform-conditionsᵒ ?conditions ?new-conditions)
+   (transform-listᵒ transform-conditionᵒ ?conditions ?new-conditions)
    (≡ out `(cond . ~?new-conditions))))
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
