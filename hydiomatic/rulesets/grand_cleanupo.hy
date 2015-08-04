@@ -15,17 +15,10 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]]
-        [hy [HySymbol]])
+        [adderall.extra.misc [*]]
+        [hy [HySymbol HyList]])
 (require adderall.dsl)
 (require hydiomatic.macros)
-
-(defn --transform-bindings/extend-symbol-with-nil-- [bindings]
-  (setv new-bindings [])
-  (for [binding bindings]
-    (if (instance? HySymbol binding)
-      (.append new-bindings [binding nil])
-      (.append new-bindings binding)))
-  new-bindings)
 
 (defn simple-flatten [coll]
   (setv new-coll [])
@@ -33,16 +26,26 @@
     (.extend new-coll member))
   new-coll)
 
+(defn transform-bindingᵒ [in out]
+  (prep
+   (condᵉ [(typeᵒ in HyList) (≡ out in)]
+          (else (≡ out `[~in nil])))))
+
+(defn transform-bindingsᵒ [in out]
+  (prep
+   (condᵉ [(emptyᵒ in) (≡ in out)]
+          [(consᵒ ?binding ?rest in)
+           (transform-bindingᵒ ?binding ?new-binding)
+           (transform-bindingsᵒ ?rest ?new-rest)
+           (consᵒ ?new-binding ?new-rest out)])))
+
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
   ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z nil] ...)
   ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z nil] ...)
   (prep
    (≡ expr `(~?op ~?bindings . ~?body))
    (memberᵒ ?op `[let with])
-   (project [?bindings]
-            (≡ ?new-bindings
-               (--transform-bindings/extend-symbol-with-nil--
-                ?bindings)))
+   (transform-bindingsᵒ ?bindings ?new-bindings)
    (project [?new-bindings]
             (≡ ?flat-bindings (simple-flatten ?new-bindings)))
    (condᵉ
