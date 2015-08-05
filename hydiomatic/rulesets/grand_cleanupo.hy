@@ -102,29 +102,25 @@
   ;;   (defn foo [self] ...))
   ;; + same with docstring
   (prep
-   (≡ expr `(defclass ~?name ~?base-list
-              ~?body))
+   (condᵉ
+    [(≡ expr `(defclass ~?name ~?base-list
+                ~?body))]
+    [(≡ expr `(defclass ~?name ~?base-list
+                ~?docstring
+                ~?body))])
    (project [?body]
             (≡ (, ?vars ?fns) (partition-vars-and-fns ?body)))
    (project [?vars ?fns]
             (≡ ?new-vars (simple-flatten ?vars))
             (transform-listᵒ transform-defnᵒ ?fns ?new-fns))
-   (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
-                   ~?new-vars . ~?new-fns))
-   (project [?new-form]
-            (≡ out (HyExpression ?new-form))))
-  (prep
-   (≡ expr `(defclass ~?name ~?base-list
-              ~?docstring
-              ~?body))
-   (project [?body]
-            (≡ (, ?vars ?fns) (partition-vars-and-fns ?body)))
-   (project [?vars ?fns]
-            (≡ ?new-vars (simple-flatten ?vars))
-            (transform-listᵒ transform-defnᵒ ?fns ?new-fns))
-   (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
-                   ~?docstring
-                   ~?new-vars . ~?new-fns))
+   (condᵉ
+    [(emptyᵒ ?docstring)
+     (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
+                     ~?new-vars . ~?new-fns))]
+    (else
+     (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
+                     ~?docstring
+                     ~?new-vars . ~?new-fns))))
    (project [?new-form]
             (≡ out (HyExpression ?new-form)))))
 
