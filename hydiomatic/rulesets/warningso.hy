@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -57,6 +57,7 @@
    (project [expr ?x ?xstripped]
             (suggest expr ?x (HySymbol ?xstripped)))
    #uu)
+
   ;; A function without a docstring is a bad function.
   (prep
    (≡ expr `(~?op ~?name ~?vars . ~?body))

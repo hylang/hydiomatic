@@ -24,34 +24,45 @@
   ;; (if test y nil) => (when test y)
   [`(if ~?test ~?yes-branch nil)
    `(when ~?test ~?yes-branch)]
+
   ;; (if test nil n) => (unless test n)
   [`(if ~?test nil ~?no-branch)
    `(unless ~?test ~?no-branch)]
+
   ;; (if (not test) a b) => (if-not test a b)
   [`(if (not ~?test) . ~?branches)
    `(if-not ~?test . ~?branches)]
+
   ;; (if test (do y)) => (when test y)
   [`(if ~?test (do . ~?y))
    `(when ~?test . ~?y)]
+
   ;; (when (not test) stuff) => (unless test stuff)
   [`(when (not ~?test) . ~?body)
    `(unless ~?test . ~?body)]
+
   ;; (do x) => x
   [`(do ~?body) ?body]
+
   ;; (when test (do x)) => (when test x)
   [`(when ~?test (do . ~?body))
    `(when ~?test . ~?body)]
+
   ;; (unless test (do x)) => (unless test x)
   [`(unless ~?test (do . ~?body))
    `(unless ~?test . ~?body)]
+
   ;; (fn [...] (do x)) => (fn [...] x)
   [`(fn ~?args (do . ~?body))
    `(fn ~?args . ~?body)]
+
   ;; (fn [...] "docstring" (do x)) => (fn [...] "docstring" x)
   [`(fn ~?args ~?docstring (do . ~?body))
    `(fn ~?args ~?docstring . ~?body)]
+
   ;; (try (do ...)) => (try ...)
   [`(try (do . ~?body)) `(try . ~?body)]
+
   ;; (defn [...] (do x)) => (defn [...] x)
   ;; (defun [...] (do x)) => (defun [...] x)
   ;; (defn [...] "..." (do x)) => (defn "..." [...] x)
@@ -64,6 +75,7 @@
      (typeᵒ ?docstring HyString)
      (≡ out `(~?op ~?name ~?args ~?docstring . ~?body))])
    (memberᵒ ?op `[defn defun defn-alias defun-alias]))
+
   ;; (if test a) => (when test a)
   ;; (if-not test a) => (unless test a)
   ;; unless a is an unquote-splice
@@ -75,15 +87,19 @@
    (condᵉ
     [(firstᵒ ?branch `unquote-splice) (≡ out expr)]
     (else (≡ out `(~?new-op ~?test ~?branch)))))
+
   ;; (let [...] (do ...)) => (let [...] ...)
   [`(let ~?bindings (do . ~?exprs)) `(let ~?bindings . ~?exprs)]
+
   ;; (loop [...] (do ...)) => (loop [...] ...)
   [`(loop ~?bindings (do . ~?exprs)) `(loop ~?bindings . ~?exprs)]
+
   ;; (loop [] (when ... (recur))) => (while ... ...)
   (prep
    (≡ expr `(loop [] (when ~?test . ~?body)))
    (appendᵒ ?exprs [`(recur)] ?body)
    (project [?exprs ?test]
             (≡ out (HyExpression `(while ~?test . ~?exprs)))))
+
   ;; (while true (yield func)) => (repeatedly func)
   [`(while true (yield ~?func)) `(repeatedly ~?func)])

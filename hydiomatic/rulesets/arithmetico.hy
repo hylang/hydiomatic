@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -22,15 +22,20 @@
   ;; (+ 0 x), (+ x 0) => x
   [`(+ 0 ~?x) ?x]
   [`(+ ~?x 0) ?x]
+
   ;; (* 1 x), (* x 1) => x
   [`(* 1 ~?x) ?x]
   [`(* ~?x 1) ?x]
+
   ;; (+ x (+ ...)) => (+ x ...)
   [`(+ ~?x (+ . ~?xs)) `(+ ~?x . ~?xs)]
+
   ;; (* x (* ...)) => (* x ...)
   [`(* ~?x (* . ~?xs)) `(* ~?x . ~?xs)]
+
   ;; (+ x 1), (+ 1 x) => (inc x)
   [`(+ ~?x 1) `(inc ~?x)]
   [`(+ 1 ~?x) `(inc ~?x)]
+
   ;; (- x 1) => (dec x)
   [`(- ~?x 1) `(dec ~?x)])

@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -28,22 +28,30 @@
    (typeᵒ ?params HyExpression)
    (project [?params]
             (≡ out `(~?op ~?fname ~(HyList ?params) . ~?body))))
+
   ;; (isinstance x klass) => (instance? klass x)
   [`(isinstance ~?x ~?klass) `(instance? ~?klass ~?x)]
+
   ;; (instance? float x) => (float? x)
   [`(instance? float ~?x) `(float? ~?x)]
+
   ;; (instance? int x) => (integer? x)
   [`(instance? int ~?x) `(integer? ~?x)]
+
   ;; (instance? str x) => (string? x)
   [`(instance? str ~?x) `(string? ~?x)]
+
   ;; (instance? unicode x) => (string? x)
   [`(instance? unicode ~?x) `(string? ~?x)]
+
   ;; (for* [x iteratable] (yield x))
   ;;  => (yield-from iteratable)
   [`(for* [~?x ~?iteratable] (yield ~?x))
    `(yield-from ~?iteratable)]
+
   ;; (-> a) => a
   [`(-> ~?a) ?a]
+
   ;; (-> (-> x) y) => (-> x y)
   (prep
    (≡ expr `(-> ~?inner . ~?y))
@@ -53,6 +61,7 @@
    (typeᵒ ?x HyExpression)
    (typeᵒ ?y HyExpression)
    (appendᵒ ?o ?y out))
+
   ;; (kwapply (.foo bar baz) {...}) => (apply bar.foo [baz] {...})
   (prep
    (≡ expr `(kwapply ~?target ~?kwargs))
@@ -67,6 +76,7 @@
                             (≡ ?new-params (HyList ?params))
                             (≡ ?call-name (+ ?o ?m)))))
    (≡ out `(apply ~?call-name ~?new-params ~?kwargs)))
+
   ;; (kwapply (foo bar baz) {...} => (apply foo [bar baz] {...})
   (prep
    (≡ expr `(kwapply (~?method . ~?params) ~?kwargs))

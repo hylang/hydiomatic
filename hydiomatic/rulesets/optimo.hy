@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -41,6 +41,7 @@
             (≡ ?new-body (--transform-bindings-- ?bindings ?body)))
    (project [?c]
             (≡ out (HyExpression ?c))))
+
   ;; (fn [x] (foo x)) => foo
   ;;  (for certain values of foo)
   (prep

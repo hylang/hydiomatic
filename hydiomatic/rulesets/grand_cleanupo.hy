@@ -79,9 +79,11 @@
     [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
     [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
    (≡ out `(~?new-op ~?flat-bindings . ~?body)))
+
   ;; (for [...] (do ...)) => (for [...] ...)
   [`(for ~?bindings (do . ~?body))
    `(for ~?bindings . ~?body)]
+
   ;; (cond [(test) (do ...)]
   ;;       [(test2) (effect)])
   ;; =>
@@ -91,6 +93,7 @@
    (≡ expr `(cond . ~?conditions))
    (transform-listᵒ transform-conditionᵒ ?conditions ?new-conditions)
    (≡ out `(cond . ~?new-conditions)))
+
   ;; (defclass A [...]
   ;;   [[x 1]
   ;;    [y 2]
