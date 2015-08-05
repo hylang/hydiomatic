@@ -397,4 +397,7 @@
                   (defclass Cat [Object]
                     "This is the docstring"
                     [color "unknown"]
-                    (defn meow! [self] (println "Meow2!")))))
+                    (defn meow! [self] (println "Meow2!"))))
+
+  (assert-cleanup (slice this 3)
+                  (cut this 3)))

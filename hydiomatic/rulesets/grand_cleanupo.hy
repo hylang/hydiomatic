@@ -125,7 +125,10 @@
                      ~?docstring
                      ~?new-vars . ~?new-fns))))
    (project [?new-form]
-            (≡ out (HyExpression ?new-form)))))
+            (≡ out (HyExpression ?new-form))))
+
+  ;; (slice) is now (cut)
+  [`(slice . ~?body) `(cut . ~?body)])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
