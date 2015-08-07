@@ -84,4 +84,23 @@
                           (.rstrip (hypformat ?foexp))
                           (.rstrip (hypformat ?roexp))
                           (.rstrip (hypformat `(consᵒ ~?f ~?r ~?l))))))
+   #uu)
+
+  ;; CAPITAL symbols are the same as *ear-muffed* ones, and earmuffs
+  ;; are more hydiomatic.
+  (prep
+   (typeᵒ expr HySymbol)
+   (project [expr]
+            (do
+             (if (.isupper expr)
+               #ss
+               #uu)))
+   (project [expr]
+            (≡ ?suggestion (+ "*" (.lower expr) "*")))
+   (project [?suggestion]
+            (≡ ?suggested-symbol (HySymbol ?suggestion)))
+   (project [expr ?suggested-symbol]
+            (log (.format "; Instead of `{0}`, consider using `{1}`."
+                          (.rstrip (hypformat expr))
+                          (.rstrip (hypformat ?suggested-symbol)))))
    #uu))

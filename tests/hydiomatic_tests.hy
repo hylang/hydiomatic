@@ -313,7 +313,12 @@
              ["; Instead of `(firstᵒ l f)` and `(restᵒ l r)`, consider using `(consᵒ f r l)`.\n"
               `(fresh [f r]
                       (firstᵒ l f)
-                      (restᵒ l r))])))
+                      (restᵒ l r))]))
+  (assert (= (wrap-stdout
+              (simplify '(def FOO "bar")
+                        rules/warnings))
+             ["; Instead of `FOO`, consider using `*foo*`.\n"
+              `(def FOO "bar")])))
 
 (defmacro assert-cleanup [expr expected]
   `(assert (= (simplify '~expr rules/grand-cleanup)
