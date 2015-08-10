@@ -405,4 +405,34 @@
                     (defn meow! [self] (println "Meow2!"))))
 
   (assert-cleanup (slice this 3)
-                  (cut this 3)))
+                  (cut this 3))
+
+  (assert-cleanup (throw IOError)
+                  (raise IOError))
+  (assert-cleanup (throw)
+                  (raise))
+  (assert-cleanup (try
+                   (do-something)
+                   (catch [e Exception]
+                     (handle-it!)))
+                  (try
+                   (do-something)
+                   (except [e Exception]
+                     (handle-it!))))
+
+  (assert-cleanup (progn something
+                         something-else)
+                  (do something
+                      something-else))
+
+  (assert-cleanup (defun this-function [args]
+                    "docstring"
+                    (len args))
+                  (defn this-function [args]
+                    "docstring"
+                    (len args)))
+
+  (assert-cleanup (lisp-if test true false)
+                  (lif test true false))
+  (assert-cleanup (lisp-if-not test false true)
+                  (lif-not test false true)))

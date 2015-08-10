@@ -128,7 +128,23 @@
             (≡ out (HyExpression ?new-form))))
 
   ;; (slice) is now (cut)
-  [`(slice . ~?body) `(cut . ~?body)])
+  [`(slice . ~?body) `(cut . ~?body)]
+
+  ;; (throw) is now (rise)
+  [`(throw . ~?body) `(raise . ~?body)]
+
+  ;; (catch) is now (except)
+  [`(catch . ~?body) `(except . ~?body)]
+
+  ;; (progn) is now (do)
+  [`(progn . ~?body) `(do . ~?body)]
+
+  ;; (defun) is now (defn)
+  [`(defun . ~?body) `(defn . ~?body)]
+
+  ;; (lisp-if) and (lisp-if-not) are now (lif) and (lif-not)
+  [`(lisp-if . ~?body) `(lif . ~?body)]
+  [`(lisp-if-not . ~?body) `(lif-not . ~?body)])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
