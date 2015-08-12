@@ -144,7 +144,10 @@
 
   ;; (lisp-if) and (lisp-if-not) are now (lif) and (lif-not)
   [`(lisp-if . ~?body) `(lif . ~?body)]
-  [`(lisp-if-not . ~?body) `(lif-not . ~?body)])
+  [`(lisp-if-not . ~?body) `(lif-not . ~?body)]
+
+  ;; null => nil
+  [`null `nil])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let

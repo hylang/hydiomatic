@@ -435,4 +435,9 @@
   (assert-cleanup (lisp-if test true false)
                   (lif test true false))
   (assert-cleanup (lisp-if-not test false true)
-                  (lif-not test false true)))
+                  (lif-not test false true))
+
+  (assert-cleanup null
+                  nil)
+  (assert-cleanup (defn foo [] null)
+                  (defn foo [] nil)))
