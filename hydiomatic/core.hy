@@ -18,6 +18,7 @@
         [hydiomatic.rules [*]]
         [hy.contrib.walk [prewalk]])
 (require adderall.dsl)
+(require hy.contrib.anaphoric)
 
 (defn simplify-step-by-rule [rule expr]
   (let [[alts (run* [q] (rule expr q))]]
@@ -47,10 +48,10 @@
   (cleanup-step (simplify-step* expr rules)))
 
 (defn simplify* [expr &optional [rules rules/default]]
-  (setv new-expr (prewalk (fn [x] (simplify-step* x rules)) expr))
+  (setv new-expr (prewalk (xi simplify-step* x1 rules) expr))
   (unless (= new-expr expr)
     (while true
-      (setv res (prewalk (fn [x] (simplify-step* x rules)) new-expr))
+      (setv res (prewalk (xi simplify-step* x1 rules) new-expr))
       (when (= res new-expr)
         (break))
       (setv new-expr res)))
@@ -61,11 +62,11 @@
 
 (defn simplifications [expr &optional [rules rules/default]]
   (setv stages [expr])
-  (setv new-expr (prewalk (fn [x] (simplify-step* x rules)) expr))
+  (setv new-expr (prewalk (xi simplify-step* x1 rules) expr))
   (unless (= new-expr expr)
     (.append stages (cleanup-step new-expr))
     (while true
-      (setv res (prewalk (fn [x] (simplify-step* x rules)) new-expr))
+      (setv res (prewalk (xi simplify-step* x1 rules) new-expr))
       (when (= res new-expr)
         (break))
       (setv new-expr res)
