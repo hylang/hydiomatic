@@ -1,7 +1,7 @@
 Hydiomatic
 ==========
 
-[![Build Status](https://img.shields.io/travis/algernon/hydiomatic.svg?style=flat-square)](https://travis-ci.org/algernon/hydiomatic)
+[![Build Status](https://img.shields.io/travis/hylang/hydiomatic.svg?style=flat-square)](https://travis-ci.org/hylang/hydiomatic)
 [![Downloads](https://img.shields.io/pypi/dm/hydiomatic.svg?style=flat-square)](https://pypi.python.org/pypi/hydiomatic)
 [![Version](https://img.shields.io/pypi/v/hydiomatic.svg?style=flat-square)](https://pypi.python.org/pypi/hydiomatic)
 
