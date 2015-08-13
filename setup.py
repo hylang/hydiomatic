@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 ## hydiomatic -- The Hy Transformer
-## Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+## Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ##
 ## This library is free software: you can redistribute it and/or
 ## modify it under the terms of the GNU Lesser General Public License
@@ -31,7 +31,7 @@ setup(
     author_email="algernon@madhouse-project.org",
     long_description="""Static code analyser for Hy""",
     license="LGPL-3",
-    url="https://github.com/algernon/hydiomatic",
+    url="https://github.com/hylang/hydiomatic",
     platforms=['any'],
     classifiers=[
         "Development Status :: 3 - Alpha",
