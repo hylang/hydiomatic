@@ -41,9 +41,9 @@ Or programmatically:
 ```clojure
 (import [hydiomatic.core [*]])
 
-(simplify '(if (not (= 0 (- 1 1))) 
+(simplify '(if (not (= 0 (- 1 1)))
              (do (print (+ 1 (+ 2 3)) [a b {"c" (+ a 1)}]))))
-;=> (unless (is_zero (dec 1))
+;=> (unless (zero? (dec 1))
 ;     (print (+ 1 2 3) [a b {"c" (inc a)}]))
 ```
 
