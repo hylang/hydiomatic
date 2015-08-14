@@ -21,7 +21,7 @@
 (defn -hystringify [value]
   (let [[sv (string value)]]
     (if (.startswith sv "is_")
-      (+ (slice sv 3) "?")
+      (+ (cut sv 3) "?")
       (if (= sv "None")
         "nil"
         sv))))
