@@ -147,7 +147,10 @@
   [`(lisp-if-not . ~?body) `(lif-not . ~?body)]
 
   ;; null => nil
-  [`null `nil])
+  [`null `nil]
+
+  ;; zipwith => map
+  [`zipwith `map])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let

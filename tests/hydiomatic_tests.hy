@@ -440,4 +440,7 @@
   (assert-cleanup null
                   nil)
   (assert-cleanup (defn foo [] null)
-                  (defn foo [] nil)))
+                  (defn foo [] nil))
+
+  (assert-cleanup (zipwith operator.add [1 2 3] [4 5 6])
+                  (map operator.add [1 2 3] [4 5 6])))
