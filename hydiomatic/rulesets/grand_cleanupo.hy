@@ -150,7 +150,10 @@
   [`null `nil]
 
   ;; zipwith => map
-  [`zipwith `map])
+  [`zipwith `map]
+  
+  ;; filterfalse => remove
+  [`filterfalse `remove])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let

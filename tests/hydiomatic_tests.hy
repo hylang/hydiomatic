@@ -443,4 +443,7 @@
                   (defn foo [] nil))
 
   (assert-cleanup (zipwith operator.add [1 2 3] [4 5 6])
-                  (map operator.add [1 2 3] [4 5 6])))
+                  (map operator.add [1 2 3] [4 5 6]))
+
+  (assert-cleanup (filterfalse odd? [1 2 3 4 5 6 7])
+                  (remove odd? [1 2 3 4 5 6 7])))
