@@ -21,7 +21,7 @@
 (require hydiomatic.macros)
 
 (defn --transform-bindings-- [bindings body]
-  (let [[new-bindings (list-comp `(setv ~@x) [x bindings])]]
+  (let [new-bindings (list-comp `(setv ~@x) [x bindings])]
     (+ new-bindings body)))
 
 (defrules [rules/optimᵒ rules/optimo]

@@ -147,19 +147,19 @@
                (defn foo [a b c] (+ a b c)))
   (assert-step (defn foo (a b c) "docstring!" (+ a b c))
                (defn foo [a b c] "docstring!" (+ a b c)))
-  (let [[alt (simplify-step '(defn foo (a b c) (+ a b c)))]]
+  (let [alt (simplify-step '(defn foo (a b c) (+ a b c)))]
     (assert (= (type (get alt 2))
                HyList)))
-  (let [[alt (simplify-step '(defun foo (a b c) (+ a b c)))]]
+  (let [alt (simplify-step '(defun foo (a b c) (+ a b c)))]
     (assert (= (type (get alt 2))
                HyList)))
-  (let [[alt (simplify-step '(defn-alias [foo bar] (a b c) (+ a b c)))]]
+  (let [alt (simplify-step '(defn-alias [foo bar] (a b c) (+ a b c)))]
     (assert (= (type (get alt 2))
                HyList)))
-  (let [[alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]]
+  (let [alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]
     (assert (= (type (get alt 2))
                HyList)))
-  (let [[alt (simplify-step '(defn foo (a b c) "docstring!" (+ a b c)))]]
+  (let [alt (simplify-step '(defn foo (a b c) "docstring!" (+ a b c)))]
     (assert (= (type (get alt 2))
                HyList)))
 

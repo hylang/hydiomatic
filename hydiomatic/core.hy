@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,7 @@
 (require hy.contrib.anaphoric)
 
 (defn simplify-step-by-rule [rule expr]
-  (let [[alts (run* [q] (rule expr q))]]
+  (let [alts (run* [q] (rule expr q))]
     (if (empty? alts)
       expr
       (first alts))))

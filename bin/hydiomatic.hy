@@ -31,7 +31,7 @@
   (setv sys.ps1 ";=> ")
   (setv sys.ps2 "    ")
 
-  (with [[(completion)]]
+  (with [(completion)]
         (setv hr (HyREPL))
         (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules[*]])")
         (.interact hr "hydiomatic")))
@@ -44,11 +44,11 @@
            {"outermost" true})))
 
 (defn do-diff [fn rules]
-  (let [[original (process-file identity hypformat fn nil)]
-        [simplified (process-file simplify hypformat fn rules)]]
+  (let [original (process-file identity hypformat fn nil)
+        simplified (process-file simplify hypformat fn rules)]
     (for [line (apply unified-diff [original simplified]
                       {"fromfile" (+ fn ".orig")
-                       "tofile" fn})]
+                                  "tofile" fn})]
       (sys.stdout.write line))))
 
 (defn pick-rules [experimental? grand-cleanup?]

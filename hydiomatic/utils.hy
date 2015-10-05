@@ -19,7 +19,7 @@
         [sys])
 
 (defn -hystringify [value]
-  (let [[sv (string value)]]
+  (let [sv (string value)]
     (if (.startswith sv "is_")
       (+ (cut sv 3) "?")
       (if (= sv "None")

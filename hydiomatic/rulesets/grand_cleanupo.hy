@@ -151,7 +151,7 @@
 
   ;; zipwith => map
   [`zipwith `map]
-  
+
   ;; filterfalse => remove
   [`filterfalse `remove])
 

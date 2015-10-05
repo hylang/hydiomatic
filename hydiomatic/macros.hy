@@ -21,7 +21,7 @@
  (defn rule [rule]
    (if (instance? HyExpression rule)
      `[~rule]
-     (let [[[pat subst] rule]]
+     (let [[pat subst] rule]
        `[(prep
           (≡ expr ~pat)
           (≡ out ~subst))]))))
