@@ -58,3 +58,6 @@
   (if outermost
     (list (map hypformat form))
     (+ (-pprint form) "\n")))
+
+(defmacro pretty/simplify [expr &rest args]
+  `(hypprint (simplify '~expr ~@args)))

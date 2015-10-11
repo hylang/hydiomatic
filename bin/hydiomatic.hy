@@ -33,7 +33,7 @@
 
   (with [(completion)]
         (setv hr (HyREPL))
-        (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules[*]])")
+        (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules [*]]) (require hydiomatic.utils)")
         (.interact hr "hydiomatic")))
 
 (defn process-file [transform printer fn rules]
