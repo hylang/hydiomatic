@@ -1,6 +1,6 @@
 #! /usr/bin/env hy
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015, 2016  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -23,7 +23,8 @@
         [hy.completer [completion]]
         [hydiomatic.core [simplify]]
         [hydiomatic.rules [rules/default rules/experimental
-                           rules/warnings rules/grand-cleanup]]
+                           rules/warnings rules/grand-cleanup
+                           rules/jokes]]
         [hydiomatic.utils [hypprint hypformat]]
         [difflib [unified-diff]])
 
@@ -51,19 +52,21 @@
                                   "tofile" fn})]
       (sys.stdout.write line))))
 
-(defn pick-rules [experimental? grand-cleanup?]
-  (if grand-cleanup?
-    rules/grand-cleanup
-    (if experimental?
-      rules/experimental
-      rules/default)))
+(defn pick-rules [experimental? grand-cleanup? jokes?]
+  (if jokes?
+    rules/jokes
+    (if grand-cleanup?
+      rules/grand-cleanup
+      (if experimental?
+        rules/experimental
+        rules/default))))
 
 (when (= --name-- "__main__")
 
   (def parser (apply argparse.ArgumentParser []
                      {"prog" "hydiomatic"
-                      "usage" "%(prog)s [options] FILE"
-                      "formatter_class" argparse.RawDescriptionHelpFormatter}))
+                             "usage" "%(prog)s [options] FILE"
+                             "formatter_class" argparse.RawDescriptionHelpFormatter}))
 
   (apply parser.add_argument ["--repl" "-r"]
          {"action" "store_true"
@@ -83,6 +86,9 @@
   (apply parser.add_argument ["--grand-cleanup" "-g"]
          {"action" "store_true"
                    "help" "Use the Grand Cleanup rules too."})
+  (apply parser.add_argument ["--jokes" "-j"]
+         {"action" "store_true"
+                   "help" "Use joke rules only."})
   (apply parser.add_argument ["args"]
          {"nargs" argparse.REMAINDER
                   "help" argparse.SUPPRESS})
@@ -101,7 +107,8 @@
    [options.dry-run
     (process-file (fn [form rules] form) hypprint (first options.args)
                   (pick-rules options.experimental
-                              options.grand_cleanup))]
+                              options.grand_cleanup
+                              options.jokes))]
 
    [options.warnings
     (process-file simplify (fn [_ &optional [outermost nil]]) (first options.args)
@@ -110,9 +117,11 @@
    [options.diff
     (for [f options.args]
       (do-diff f (pick-rules options.experimental
-                             options.grand_cleanup)))]
+                             options.grand_cleanup
+                             options.jokes)))]
 
    [true
     (process-file simplify hypprint (first options.args)
                   (pick-rules options.experimental
-                              options.grand_cleanup))]))
+                              options.grand_cleanup
+                              options.jokes))]))
