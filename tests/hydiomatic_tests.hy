@@ -1,5 +1,5 @@
 ;; hydiomatic -- The Hy Transformer
-;; Copyright (C) 2014, 2015  Gergely Nagy <algernon@madhouse-project.org>
+;; Copyright (C) 2014, 2015, 2016  Gergely Nagy <algernon@madhouse-project.org>
 ;;
 ;; This library is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public License
@@ -447,3 +447,10 @@
 
   (assert-cleanup (filterfalse odd? [1 2 3 4 5 6 7])
                   (remove odd? [1 2 3 4 5 6 7])))
+
+(defmacro assert-joke [expr expected]
+  `(assert (= (simplify '~expr rules/jokes)
+              ~expected)))
+
+(defn test-jokes []
+  (assert-joke foo? (HySymbol "foo, eh?")))
