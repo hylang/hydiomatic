@@ -15,8 +15,10 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
+
 
 (defrules [rules/equalityᵒ rules/equalityo]
   ;; (= (% n 2) 0) => (even? n)
@@ -36,22 +38,22 @@
   ;; neg?
   [`(< ~?x 0) `(neg? ~?x)]
 
-  ;; nil?
-  [`(is ~?x nil) `(nil? ~?x)]
-  [`(is nil ~?x) `(nil? ~?x)]
+  ;; none?
+  [`(is ~?x None) `(none? ~?x)]
+  [`(is None ~?x) `(none? ~?x)]
 
-  ;; none? => nil?
-  [`(none? ~?x) `(nil? ~?x)]
+  ;; nil? => none?
+  [`(nil? ~?x) `(none? ~?x)]
 
   ;; (not (is ...)) => (is-not ...)
-  [`(not (is . ~?xs)) `(is-not . ~?xs)]
+  [`(not ~(cons `is ?xs)) (cons `is-not ?xs)]
 
   ;; (not (= ...)) => (!= ...)
-  [`(not (= . ~?xs)) `(!= . ~?xs)]
+  [`(not ~(cons `= ?xs)) (cons `!= ?xs)]
 
   ;; (not (in ...)) => (not-in ...)
-  [`(not (in . ~?xs)) `(not-in . ~?xs)]
+  [`(not ~(cons `in ?xs)) (cons `not-in ?xs)]
 
   ;; (if-not (is ...) ...) => (if (is-not ...) ...)
-  [`(if-not (is . ~?xs) . ~?ys)
-   `(if (is-not . ~?xs) . ~?ys)])
+  [(cons `if-not (cons `is ?xs) ?ys)
+   (cons `if (cons `is-not ?xs) ?ys)])

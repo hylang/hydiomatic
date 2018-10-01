@@ -14,17 +14,18 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+(import sys)
 (import [hy [HyExpression HySymbol HyInteger HyString HyDict
-             HyKeyword HyCons]]
-        [sys])
+             HyKeyword]])
+
+(require [hy.contrib.walk [let]])
+
 
 (defn -hystringify [value]
   (let [sv (string value)]
     (if (.startswith sv "is_")
       (+ (cut sv 3) "?")
-      (if (= sv "None")
-        "nil"
-        sv))))
+      sv)))
 
 (defn -pprint [form]
   (cond
@@ -46,15 +47,15 @@
     (-pprint (list form))]
    [(cons? form)
     (+ "(" (-pprint (first form)) " . " (-pprint (rest form)) ")")]
-   [true
-    nil]))
+   [True
+    None]))
 
-(defn hypprint [form &optional [outermost false]]
+(defn hypprint [form &optional [outermost False]]
   (if outermost
     (list (map hypprint form))
     (print (-pprint form))))
 
-(defn hypformat [form &optional [outermost false]]
+(defn hypformat [form &optional [outermost False]]
   (if outermost
     (list (map hypformat form))
     (+ (-pprint form) "\n")))

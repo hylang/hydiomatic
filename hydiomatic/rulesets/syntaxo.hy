@@ -17,17 +17,18 @@
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
         [hy [HyExpression HyList]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
 
 (defrules [rules/syntaxᵒ rules/syntaxo]
   ;; (defn foo (x) ...) => (defn foo [x] ...)
   (prep
    (memberᵒ ?op `[defn defun defn-alias defun-alias])
-   (≡ expr `(~?op ~?fname ~?params . ~?body))
+   (≡ expr (cons ?op ?fname ?params ?body))
    (typeᵒ ?params HyExpression)
    (project [?params]
-            (≡ out `(~?op ~?fname ~(HyList ?params) . ~?body))))
+            (≡ out (cons ?op ?fname (HyList ?params) ?body))))
 
   ;; (isinstance x klass) => (instance? klass x)
   [`(isinstance ~?x ~?klass) `(instance? ~?klass ~?x)]
@@ -54,12 +55,18 @@
 
   ;; (-> (-> x) y) => (-> x y)
   (prep
-   (≡ expr `(-> ~?inner . ~?y))
-   (≡ ?inner `(-> . ~?x))
-   (≡ ?o `(-> . ~?x))
-   (typeᵒ ?inner HyExpression)
-   (typeᵒ ?x HyExpression)
-   (typeᵒ ?y HyExpression)
+   (≡ expr (cons `-> ?inner ?y))
+   (≡ ?inner (cons `-> ?x))
+   (≡ ?o (cons `-> ?x))
+   ;; TODO: This is cumbersome; is there a better expectation for the desired
+   ;; output type of `cons?` Should we change `cons` to always output a
+   ;; HyExpression?
+   (condᵉ [(typeᵒ ?inner HyExpression)]
+          [(typeᵒ ?inner list)])
+   (condᵉ [(typeᵒ ?x HyExpression)]
+          [(typeᵒ ?x list)])
+   (condᵉ [(typeᵒ ?y HyExpression)]
+          [(typeᵒ ?y list)])
    (appendᵒ ?o ?y out))
 
   ;; (kwapply (.foo bar baz) {...}) => (apply bar.foo [baz] {...})
@@ -68,9 +75,9 @@
    (typeᵒ ?target HyExpression)
    (firstᵒ ?target ?method)
    (project [?method]
-            (≡ true (.startswith ?method "."))
+            (≡ True (.startswith ?method "."))
             (fresh [?m ?o]
-                   (≡ ?target `(~?m ~?o . ~?params))
+                   (≡ ?target (cons ?m ?o ?params))
                    (typeᵒ ?o HySymbol)
                    (project [?params ?m ?o]
                             (≡ ?new-params (HyList ?params))
@@ -79,7 +86,7 @@
 
   ;; (kwapply (foo bar baz) {...} => (apply foo [bar baz] {...})
   (prep
-   (≡ expr `(kwapply (~?method . ~?params) ~?kwargs))
+   (≡ expr `(kwapply ~(cons ?method ?params) ~?kwargs))
    (project [?params]
             (≡ ?new-params (HyList ?params)))
    (≡ out `(apply ~?method ~?new-params ~?kwargs))))

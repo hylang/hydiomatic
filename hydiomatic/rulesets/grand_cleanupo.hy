@@ -17,8 +17,10 @@
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
         [hy [HySymbol HyList HyExpression]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
+
 
 (defn simple-flatten [coll]
   (setv new-coll [])
@@ -29,15 +31,15 @@
 (defn transform-bindingᵒ [in out]
   (prep
    (condᵉ [(typeᵒ in HyList) (≡ out in)]
-          (else (≡ out `[~in nil])))))
+          (else (≡ out `[~in None])))))
 
 (defn transform-conditionᵒ [in out]
   (prep
    (consᵒ ?test ?effects in)
    (firstᵒ ?effects ?effect)
    (condᵉ
-    [(≡ ?effect `(do . ~?body))
-     (≡ ?result `(~?test . ~?body))
+    [(≡ ?effect (cons 'do ?body))
+     (≡ ?result (cons ?test ?body))
      (project [?result]
               (≡ out (HyList ?result)))]
     (else (≡ in out)))))
@@ -63,14 +65,14 @@
 
 (defn transform-defnᵒ [in out]
   (prep
-   (≡ in `[~?name (fn . ~?body)])
-   (≡ out `(defn ~?name . ~?body))))
+   (≡ in `[~?name ~(cons 'fn ?body)])
+   (≡ out (cons 'defn ?name ?body))))
 
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
-  ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z nil] ...)
-  ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z nil] ...)
+  ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z None] ...)
+  ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z None] ...)
   (prep
-   (≡ expr `(~?op ~?bindings . ~?body))
+   (≡ expr (cons ?op ?bindings ?body))
    (memberᵒ ?op `[let with])
    (transform-listᵒ transform-bindingᵒ ?bindings ?new-bindings)
    (project [?new-bindings]
@@ -78,11 +80,11 @@
    (condᵉ
     [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
     [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
-   (≡ out `(~?new-op ~?flat-bindings . ~?body)))
+   (≡ out (cons ?new-op ?flat-bindings ?body)))
 
   ;; (for [...] (do ...)) => (for [...] ...)
-  [`(for ~?bindings (do . ~?body))
-   `(for ~?bindings . ~?body)]
+  [`(for ~?bindings ~(cons 'do ?body))
+   (cons 'for ?bindings ?body)]
 
   ;; (cond [(test) (do ...)]
   ;;       [(test2) (effect)])
@@ -90,9 +92,9 @@
   ;; (cond [(test) ...]
   ;;       [(test2) (effect)])
   (prep
-   (≡ expr `(cond . ~?conditions))
+   (≡ expr (cons 'cond ?conditions))
    (transform-listᵒ transform-conditionᵒ ?conditions ?new-conditions)
-   (≡ out `(cond . ~?new-conditions)))
+   (≡ out (cons 'cond ?new-conditions)))
 
   ;; (defclass A [...]
   ;;   [[x 1]
@@ -118,56 +120,84 @@
             (transform-listᵒ transform-defnᵒ ?fns ?new-fns))
    (condᵉ
     [(emptyᵒ ?docstring)
-     (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
-                     ~?new-vars . ~?new-fns))]
+     (≡ ?new-form (cons '$hydiomatic/defclass$ ?name ?base-list
+                    ?new-vars ?new-fns))]
     (else
-     (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
-                     ~?docstring
-                     ~?new-vars . ~?new-fns))))
+     (≡ ?new-form (cons '$hydiomatic/defclass$ ?name ?base-list
+                    ?docstring
+                    ?new-vars ?new-fns))))
    (project [?new-form]
             (≡ out (HyExpression ?new-form))))
 
+  ;; TODO: Add a test!
+  [`(require ~?lib) `(require [~?lib [*]])]
+
+  ;; TODO: Add a test!
+  [`(import [~?lib]) `(import ~?lib)]
+
+  ;; TODO: Add a test!
+  [`(list-comp ~?body [~?x ~?bindings])
+   `(lfor ~?x ~?bindings ~?body)]
+
   ;; (slice) is now (cut)
-  [`(slice . ~?body) `(cut . ~?body)]
+  [(cons 'slice ?body) (cons 'cut ?body)]
 
   ;; (throw) is now (rise)
-  [`(throw . ~?body) `(raise . ~?body)]
+  [(cons 'throw ?body) (cons 'raise ?body)]
 
   ;; (catch) is now (except)
-  [`(catch . ~?body) `(except . ~?body)]
+  [(cons 'catch ?body) (cons 'except ?body)]
 
   ;; (progn) is now (do)
-  [`(progn . ~?body) `(do . ~?body)]
+  [(cons 'progn ?body) (cons 'do ?body)]
 
   ;; (defun) is now (defn)
-  [`(defun . ~?body) `(defn . ~?body)]
+  [(cons 'defun ?body) (cons 'defn ?body)]
+
+  ;; (def) is now (setv)
+  [(cons 'def ?body) (cons 'setv ?body)]
 
   ;; (lisp-if) and (lisp-if-not) are now (lif) and (lif-not)
-  [`(lisp-if . ~?body) `(lif . ~?body)]
-  [`(lisp-if-not . ~?body) `(lif-not . ~?body)]
+  [(cons 'lisp-if ?body) (cons 'lif ?body)]
+  [(cons 'lisp-if-not ?body) (cons 'lif-not ?body)]
 
-  ;; null => nil
-  [`null `nil]
+  ;; null => None
+  [`null `None]
+
+  ;; nill => None
+  [`nil `None]
+
+  ;; true => True
+  [`true `True]
+
+  ;; false => False
+  [`false `False]
 
   ;; zipwith => map
   [`zipwith `map]
 
   ;; filterfalse => remove
-  [`filterfalse `remove])
+  [`filterfalse `remove]
+
+  ;; (car . cdr) => (cons car cdr)
+  ;; XXX FIXME TODO: This will result in a `cons` object dependency!
+  [`(~?car . ~?cdr) (cons ?car ?cdr)])
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
   ;; $hydiomatic/with$ => with
   (prep
-   (≡ expr `(~?op . ~?args))
+   (≡ expr (cons ?op ?args))
    (memberᵒ ?op `[$hydiomatic/let$
                   $hydiomatic/with$
                   $hydiomatic/defclass$])
    (condᵉ
+     ;; TODO: `let` isn't builtin anymore, so should we include the `require`
+     ;; statement?
     [(≡ ?op `$hydiomatic/let$)
      (≡ ?new-op `let)]
     [(≡ ?op `$hydiomatic/with$)
      (≡ ?new-op `with)]
     [(≡ ?op `$hydiomatic/defclass$)
      (≡ ?new-op `defclass)])
-   (≡ out `(~?new-op . ~?args))))
+   (≡ out (cons ?new-op ?args))))

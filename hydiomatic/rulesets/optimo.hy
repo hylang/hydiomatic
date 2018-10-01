@@ -17,11 +17,13 @@
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
         [hy [HyExpression HyString]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [hy.contrib.walk [let]])
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
 
 (defn --transform-bindings-- [bindings body]
-  (let [new-bindings (list-comp `(setv ~@x) [x bindings])]
+  (let [new-bindings (lfor x bindings `(setv ~@x))]
     (+ new-bindings body)))
 
 (defrules [rules/optimᵒ rules/optimo]
@@ -31,12 +33,12 @@
    (memberᵒ ?op `[defn defun defn-alias defun-alias])
    (condᵉ
     [(≡ expr `(~?op ~?fname ~?params
-                    (let ~?bindings . ~?body)))
-     (≡ ?c `(~?op ~?fname ~?params . ~?new-body))]
+                    ~(cons `let ?bindings ?body)))
+     (≡ ?c (cons ?op ?fname ?params ?new-body))]
     [(≡ expr `(~?op ~?fname ~?params ~?docstring
-                    (let ~?bindings . ~?body)))
+                    ~(cons `let ?bindings ?body)))
      (typeᵒ ?docstring HyString)
-     (≡ ?c `(~?op ~?fname ~?params ~?docstring . ~?new-body))])
+     (≡ ?c (cons ?op ?fname ?params ?docstring ?new-body))])
    (project [?bindings ?body]
             (≡ ?new-body (--transform-bindings-- ?bindings ?body)))
    (project [?c]
@@ -46,8 +48,8 @@
   ;;  (for certain values of foo)
   (prep
    (condᵉ
-    [(≡ expr `(~?f ~?xs (~?op . ~?xs)))]
-    [(≡ expr `(~?f ~?xs ~?docstring (~?op . ~?xs)))])
+    [(≡ expr `(~?f ~?xs ~(cons ?op ?xs)))]
+    [(≡ expr `(~?f ~?xs ~?docstring ~(cons ?op ?xs)))])
    (memberᵒ ?f `[fn lambda])
    (condᵉ
     [(memberᵒ ?op `[and or not ~ del

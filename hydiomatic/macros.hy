@@ -15,18 +15,23 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]])
-(require adderall.dsl)
+
+(require [adderall.dsl [*]])
+(require [hy.contrib.walk [let]])
+
 
 (eval-and-compile
  (defn rule [rule]
    (if (instance? HyExpression rule)
      `[~rule]
-     (let [[pat subst] rule]
-       `[(prep
-          (≡ expr ~pat)
-          (≡ out ~subst))]))))
+     (let [pat (first rule)
+           subst (second rule)]
+         `[(prep (≡ expr ~pat)
+                 (≡ out ~subst))]))))
 
 (defmacro defrules [aliases &rest rules]
-  `(defn-alias [~@aliases] [expr out]
-     (condᵉ
-      ~@(map rule rules))))
+  `(do
+     (require [adderall.internal [defn-alias]])
+     (defn-alias [~@aliases] [expr out]
+         (condᵉ
+           ~@(map rule rules)))))

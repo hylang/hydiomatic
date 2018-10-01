@@ -1,3 +1,3 @@
 import hy
 
-from .hydiomatic_tests import *
+from .test_hydiomatic import *

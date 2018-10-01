@@ -15,10 +15,9 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hy.importer [import-file-to-hst]]
-        [argparse]
-        [sys]
-        [hy]
+(import sys
+        argparse
+        [hy.importer [hy-parse]]
         [hy.cmdline [HyREPL]]
         [hy.completer [completion]]
         [hydiomatic.core [simplify]]
@@ -28,24 +27,31 @@
         [hydiomatic.utils [hypprint hypformat]]
         [difflib [unified-diff]])
 
+(require [hy.contrib.walk [let]])
+
+(defn parse-file [filename]
+  (with [f (open filename "rb")]
+    (setv source-str (.decode (.read f) "utf-8"))
+    (hy-parse source-str)))
+
 (defn launch-repl []
   (setv sys.ps1 ";=> ")
   (setv sys.ps2 "    ")
 
   (with [(completion)]
         (setv hr (HyREPL))
-        (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules [*]]) (require hydiomatic.utils)")
+        (.runsource hr "(import [hydiomatic.core [*]] [hydiomatic.rules [*]])\n(require [hydiomatic.utils [*]])")
         (.interact hr "hydiomatic")))
 
 (defn process-file [transform printer fn rules]
   (if rules
-    (apply printer [(transform (import-file-to-hst fn) rules)]
+    (apply printer [(transform (parse-file fn) rules)]
            {"outermost" true})
-    (apply printer [(transform (import-file-to-hst fn))]
+    (apply printer [(transform (parse-file fn))]
            {"outermost" true})))
 
 (defn do-diff [fn rules]
-  (let [original (process-file identity hypformat fn nil)
+  (let [original (process-file identity hypformat fn None)
         simplified (process-file simplify hypformat fn rules)]
     (for [line (apply unified-diff [original simplified]
                       {"fromfile" (+ fn ".orig")
@@ -63,7 +69,7 @@
 
 (when (= --name-- "__main__")
 
-  (def parser (apply argparse.ArgumentParser []
+  (setv parser (apply argparse.ArgumentParser []
                      {"prog" "hydiomatic"
                              "usage" "%(prog)s [options] FILE"
                              "formatter_class" argparse.RawDescriptionHelpFormatter}))
@@ -93,7 +99,7 @@
          {"nargs" argparse.REMAINDER
                   "help" argparse.SUPPRESS})
 
-  (def options (.parse_args parser (rest sys.argv)))
+  (setv options (.parse_args parser (rest sys.argv)))
 
   (cond
    [options.repl (launch-repl)]
@@ -111,7 +117,7 @@
                               options.jokes))]
 
    [options.warnings
-    (process-file simplify (fn [_ &optional [outermost nil]]) (first options.args)
+    (process-file simplify (fn [_ &optional [outermost None]]) (first options.args)
                   rules/warnings)]
 
    [options.diff

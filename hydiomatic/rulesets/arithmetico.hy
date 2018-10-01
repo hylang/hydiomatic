@@ -14,9 +14,12 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+(import hy)
 (import [adderall.dsl [*]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
+
 
 (defrules [rules/arithmeticᵒ rules/arithmetico]
   ;; (+ 0 x), (+ x 0) => x
@@ -28,10 +31,10 @@
   [`(* ~?x 1) ?x]
 
   ;; (+ x (+ ...)) => (+ x ...)
-  [`(+ ~?x (+ . ~?xs)) `(+ ~?x . ~?xs)]
+  [`(+ ~?x ~(cons '+ ?xs)) (cons '+ ?x ?xs)]
 
   ;; (* x (* ...)) => (* x ...)
-  [`(* ~?x (* . ~?xs)) `(* ~?x . ~?xs)]
+  [`(* ~?x ~(cons '* ?xs)) (cons '* ?x ?xs)]
 
   ;; (+ x 1), (+ 1 x) => (inc x)
   [`(+ ~?x 1) `(inc ~?x)]
