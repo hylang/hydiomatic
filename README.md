@@ -27,17 +27,11 @@ $ pip install -r requirements.txt
 Usage
 -----
 
-The library can be used either via the `bin/hydiomatic.hy` script:
-
+The library can be used either via the `hydiomatic` script:
 ```shell
-$ bin/hydiomatic.hy -d FILENAME
+$ hydiomatic -d FILENAME
 ```
-
-For more information on what the script can do, run `bin/hydiomatic.hy
---help`.
-
-Or programmatically:
-
+or programmatically:
 ```clojure
 (import [hydiomatic.core [*]])
 
@@ -45,6 +39,17 @@ Or programmatically:
              (do (print (+ 1 (+ 2 3)) [a b {"c" (+ a 1)}]))))
 ;=> (unless (zero? (dec 1))
 ;     (print (+ 1 2 3) [a b {"c" (inc a)}]))
+```
+
+For more information on what the script can do, run `hydiomatic --help`.
+
+Example
+--------
+
+Here's an example of Hydiomatic updating itself from an older Hy syntax:
+```shell
+$ git show 5d3c958:bin/hydiomatic.hy > old_hydiomatic.hy
+$ hydiomatic -d old_hydiomatic.hy
 ```
 
 License

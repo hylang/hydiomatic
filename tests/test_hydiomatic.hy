@@ -180,20 +180,37 @@
                (-> a b c d))
   (assert-step (-> a) a)
 
+  (assert-step (apply (.method self param1 param2)
+                        {"key" "value"})
+               (self.method #* [param1 param2]
+                      #** {"key" "value"}))
   (assert-step (kwapply (.method self param1 param2)
                         {"key" "value"})
-               (apply self.method [param1 param2]
-                      {"key" "value"}))
+               (self.method #* [param1 param2]
+                      #** {"key" "value"}))
 
+  (assert-step (apply (.method (some-stuff))
+                        {"key" "value"})
+               (.method #* [(some-stuff)]
+                      #** {"key" "value"}))
   (assert-step (kwapply (.method (some-stuff))
                         {"key" "value"})
-               (apply .method [(some-stuff)]
-                      {"key" "value"}))
+               (.method #* [(some-stuff)]
+                      #** {"key" "value"}))
 
+  (assert-step (apply (method param1 param2)
+                        {"key" "value"})
+               (method #* [param1 param2]
+                      #** {"key" "value"}))
   (assert-step (kwapply (method param1 param2)
                         {"key" "value"})
-               (apply method [param1 param2]
-                      {"key" "value"})))
+               (method #* [param1 param2]
+                       #** {"key" "value"}))
+
+  (assert-step (apply method [param1 param2]
+                      {"key" "value"})
+               (method #* [param1 param2]
+                       #** {"key" "value"})))
 
 (defn test-rules-optimo []
   (assert-step (defn foo [x]

@@ -69,9 +69,10 @@
           [(typeᵒ ?y list)])
    (appendᵒ ?o ?y out))
 
-  ;; (kwapply (.foo bar baz) {...}) => (apply bar.foo [baz] {...})
+  ;; ([kw]apply (.foo bar baz) {...}) => (bar.foo #* [baz] #** {...})
   (prep
-   (≡ expr `(kwapply ~?target ~?kwargs))
+    (condᵉ [(≡ expr `(kwapply ~?target ~?kwargs))]
+           [(≡ expr `(apply ~?target ~?kwargs))])
    (typeᵒ ?target HyExpression)
    (firstᵒ ?target ?method)
    (project [?method]
@@ -82,11 +83,14 @@
                    (project [?params ?m ?o]
                             (≡ ?new-params (HyList ?params))
                             (≡ ?call-name (+ ?o ?m)))))
-   (≡ out `(apply ~?call-name ~?new-params ~?kwargs)))
+   (≡ out `(~?call-name #* ~?new-params #** ~?kwargs)))
 
-  ;; (kwapply (foo bar baz) {...} => (apply foo [bar baz] {...})
+  ;; ([kw]apply (foo bar baz) {...} => (foo #* [bar baz] #** {...})
   (prep
-   (≡ expr `(kwapply ~(cons ?method ?params) ~?kwargs))
+    (condᵉ [(≡ expr `(kwapply ~(cons ?method ?params) ~?kwargs))]
+           [(≡ expr `(apply ~(cons ?method ?params) ~?kwargs))]
+           ;; TODO: Do we need a kwapply version of the following?
+           [(≡ expr `(apply ~?method ~?params ~?kwargs))])
    (project [?params]
             (≡ ?new-params (HyList ?params)))
-   (≡ out `(apply ~?method ~?new-params ~?kwargs))))
+   (≡ out `(~?method #* ~?new-params #** ~?kwargs))))

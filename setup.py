@@ -26,7 +26,6 @@ setup(
         'hydiomatic': ['*.hy'],
         'hydiomatic.rulesets': ['*.hy'],
     },
-    scripts=['bin/hydiomatic.hy'],
     test_suite='nose.collector',
     tests_require=['nose'],
     author="Gergely Nagy",
@@ -36,6 +35,10 @@ setup(
     url="https://github.com/hylang/hydiomatic",
     platforms=['any'],
     python_requires='>=3.4',
+    entry_points={
+        'console_scripts':
+            ['hydiomatic = hydiomatic.scripts:main',]
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",

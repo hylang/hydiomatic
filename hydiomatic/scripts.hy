@@ -45,16 +45,16 @@
 
 (defn process-file [transform printer fn rules]
   (if rules
-    (apply printer [(transform (parse-file fn) rules)]
-           {"outermost" true})
-    (apply printer [(transform (parse-file fn))]
-           {"outermost" true})))
+      (printer #* [(transform (parse-file fn) rules)]
+               #** {"outermost" True})
+      (printer #* [(transform (parse-file fn))]
+               #** {"outermost" True})))
 
 (defn do-diff [fn rules]
   (let [original (process-file identity hypformat fn None)
         simplified (process-file simplify hypformat fn rules)]
-    (for [line (apply unified-diff [original simplified]
-                      {"fromfile" (+ fn ".orig")
+    (for [line (unified-diff #* [original simplified]
+                             #** {"fromfile" (+ fn ".orig")
                                   "tofile" fn})]
       (sys.stdout.write line))))
 
@@ -67,36 +67,38 @@
         rules/experimental
         rules/default))))
 
-(when (= --name-- "__main__")
+(defn main [&rest args]
+  (setv parser (argparse.ArgumentParser #* []
+                                        #** {"prog"
+                                             "hydiomatic"
+                                             "usage"
+                                             "%(prog)s [options] FILE"
+                                             "formatter_class"
+                                             argparse.RawDescriptionHelpFormatter}))
 
-  (setv parser (apply argparse.ArgumentParser []
-                     {"prog" "hydiomatic"
-                             "usage" "%(prog)s [options] FILE"
-                             "formatter_class" argparse.RawDescriptionHelpFormatter}))
-
-  (apply parser.add_argument ["--repl" "-r"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--repl" "-r"]
+         #** {"action" "store_true"
                    "help" "Launch a REPL instead of simplifying a file"})
-  (apply parser.add_argument ["--dry-run" "-n"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--dry-run" "-n"]
+         #** {"action" "store_true"
                    "help" "Output the parsed file without simplification"})
-  (apply parser.add_argument ["--diff" "-d"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--diff" "-d"]
+         #** {"action" "store_true"
                    "help" "Print a unified diff of the original and the simplified file."})
-  (apply parser.add_argument ["--experimental" "-e"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--experimental" "-e"]
+         #** {"action" "store_true"
                    "help" "Use experimental rules too, with potential false positives."})
-  (apply parser.add_argument ["--warnings" "-w"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--warnings" "-w"]
+         #** {"action" "store_true"
                    "help" "Instead of transforming, print warnings that have no transformation."})
-  (apply parser.add_argument ["--grand-cleanup" "-g"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--grand-cleanup" "-g"]
+         #** {"action" "store_true"
                    "help" "Use the Grand Cleanup rules too."})
-  (apply parser.add_argument ["--jokes" "-j"]
-         {"action" "store_true"
+  (parser.add_argument #* ["--jokes" "-j"]
+         #** {"action" "store_true"
                    "help" "Use joke rules only."})
-  (apply parser.add_argument ["args"]
-         {"nargs" argparse.REMAINDER
+  (parser.add_argument #* ["args"]
+         #** {"nargs" argparse.REMAINDER
                   "help" argparse.SUPPRESS})
 
   (setv options (.parse_args parser (rest sys.argv)))
@@ -126,7 +128,7 @@
                              options.grand_cleanup
                              options.jokes)))]
 
-   [true
+   [True
     (process-file simplify hypprint (first options.args)
                   (pick-rules options.experimental
                               options.grand_cleanup
