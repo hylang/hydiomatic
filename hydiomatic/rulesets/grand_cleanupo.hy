@@ -16,9 +16,12 @@
 
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
+        [adderall.internal [ConsPair]]
+        [hydiomatic.utils [hypprint hypformat]]
         [hy [HySymbol HyList HyExpression]])
 
 (require [adderall.dsl [*]])
+(require [adderall.debug [*]])
 (require [hydiomatic.macros [*]])
 
 
@@ -30,8 +33,9 @@
 
 (defn transform-bindingᵒ [in out]
   (prep
-   (condᵉ [(typeᵒ in HyList) (≡ out in)]
-          (else (≡ out `[~in None])))))
+    (condᵉ [(typeᵒ in HyList) (≡ out in)]
+           ;; FIXME: This is the problematic None pairing step.
+           (else (≡ out `[~in None])))))
 
 (defn transform-conditionᵒ [in out]
   (prep
@@ -69,18 +73,23 @@
    (≡ out (cons 'defn ?name ?body))))
 
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
+  ;; TODO FIXME: Given the new, strict argument pairing in `let`,
+  ;; this logic is now too eager and splits up valid
+  ;; binding pairs, reassigning each element to `None`
+  ;; (e.g. [x y] -> [x None y None]).
+
   ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z None] ...)
   ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z None] ...)
-  (prep
-   (≡ expr (cons ?op ?bindings ?body))
-   (memberᵒ ?op `[let with])
-   (transform-listᵒ transform-bindingᵒ ?bindings ?new-bindings)
-   (project [?new-bindings]
-            (≡ ?flat-bindings (simple-flatten ?new-bindings)))
-   (condᵉ
-    [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
-    [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
-   (≡ out (cons ?new-op ?flat-bindings ?body)))
+  ;; (prep
+  ;;     (≡ expr (cons ?op ?bindings ?body))
+  ;;     (memberᵒ ?op `[let with])
+  ;;     (transform-listᵒ transform-bindingᵒ ?bindings ?new-bindings)
+  ;;     (project [?new-bindings]
+  ;;              (≡ ?flat-bindings (simple-flatten ?new-bindings)))
+  ;;     (condᵉ
+  ;;       [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
+  ;;       [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
+  ;;     (≡ out (cons ?new-op ?flat-bindings ?body)))
 
   ;; (for [...] (do ...)) => (for [...] ...)
   [`(for ~?bindings ~(cons 'do ?body))
@@ -129,13 +138,13 @@
    (project [?new-form]
             (≡ out (HyExpression ?new-form))))
 
-  ;; TODO: Add a test!
-  [`(require ~?lib) `(require [~?lib [*]])]
+  (prep
+    (≡ expr `(require ~?lib))
+    (condᵉ [(typeᵒ ?lib HySymbol)])
+    (≡ `(require [~?lib [*]]) out))
 
-  ;; TODO: Add a test!
   [`(import [~?lib]) `(import ~?lib)]
 
-  ;; TODO: Add a test!
   [`(list-comp ~?body [~?x ~?bindings])
    `(lfor ~?x ~?bindings ~?body)]
 
@@ -180,8 +189,24 @@
   [`filterfalse `remove]
 
   ;; (car . cdr) => (cons car cdr)
-  ;; XXX FIXME TODO: This will result in a `cons` object dependency!
-  [`(~?car . ~?cdr) (cons ?car ?cdr)])
+  (prep
+    (≡ expr `(~?car . ~?cdr))
+    (≡ ?cons-out `(cons ~?car ~?cdr))
+    ;; At the very least, let's give a warning about the necessary
+    ;; import.
+    (project [expr]
+             (log (.format (+ "; TODO XXX FIXME: Cons objects have been removed, "
+                              "consider refactoring: `{0}`.\n"
+                              "; This cons has been replaced by cons and ConsPair from "
+                              "`adderall.internal`.\n; You will need to manually "
+                              "include these dependencies.")
+                           (.rstrip (hypformat expr)))))
+    ;; TODO Find a better way to automatically add the import.
+    ;; E.g. at the beginning of the file.
+    #_(≡ out `(do
+                (import [adderall.internal [cons ConsPair]])
+                ~?cons-out))
+    (≡ out ?cons-out)))
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
@@ -192,12 +217,21 @@
                   $hydiomatic/with$
                   $hydiomatic/defclass$])
    (condᵉ
-     ;; TODO: `let` isn't builtin anymore, so should we include the `require`
-     ;; statement?
     [(≡ ?op `$hydiomatic/let$)
-     (≡ ?new-op `let)]
+     (≡ ?new-op `let)
+     (project [expr]
+              (log (.format (+ "; TODO XXX FIXME: The `let` macro has been relocated to `hy.contrib.walk`.\n"
+                               "; You will need to manually include this dependency.")
+                            (.rstrip (hypformat expr)))))
+     (≡ out (cons ?new-op ?args))
+     ;; TODO: Check the appropriate context for the presence (or lack) of this
+     ;; import.
+     #_(≡ out `(do
+                 (require [hy.contrib.walk [let]])
+                 ~(cons ?new-op ?args)))]
     [(≡ ?op `$hydiomatic/with$)
-     (≡ ?new-op `with)]
+     (≡ ?new-op `with)
+     (≡ out (cons ?new-op ?args))]
     [(≡ ?op `$hydiomatic/defclass$)
-     (≡ ?new-op `defclass)])
-   (≡ out (cons ?new-op ?args))))
+     (≡ ?new-op `defclass)
+     (≡ out (cons ?new-op ?args))])))

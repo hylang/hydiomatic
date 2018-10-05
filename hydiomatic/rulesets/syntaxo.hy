@@ -86,11 +86,11 @@
    (≡ out `(~?call-name #* ~?new-params #** ~?kwargs)))
 
   ;; ([kw]apply (foo bar baz) {...} => (foo #* [bar baz] #** {...})
+  ;; ([kw]apply foo bar baz {...} => (foo #* [bar baz] #** {...})
   (prep
-    (condᵉ [(≡ expr `(kwapply ~(cons ?method ?params) ~?kwargs))]
-           [(≡ expr `(apply ~(cons ?method ?params) ~?kwargs))]
-           ;; TODO: Do we need a kwapply version of the following?
-           [(≡ expr `(apply ~?method ~?params ~?kwargs))])
-   (project [?params]
-            (≡ ?new-params (HyList ?params)))
-   (≡ out `(~?method #* ~?new-params #** ~?kwargs))))
+    (condᵉ [(≡ expr `(~?op ~(cons ?method ?params) ~?kwargs))]
+           [(≡ expr `(~?op ~?method ~?params ~?kwargs))])
+    (memberᵒ ?op `[kwapply apply])
+    (project [?params]
+             (≡ ?new-params (HyList ?params)))
+    (≡ out `(~?method #* ~?new-params #** ~?kwargs))))

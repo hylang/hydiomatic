@@ -14,14 +14,27 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hy.contrib.walk [prewalk]]
-        [adderall.dsl [*]])
+(import hy.contrib.walk
+        [adderall.dsl [*]]
+        [adderall.internal [ConsPair car cdr]])
 (import [hydiomatic.rules [*]])
 
 (require [hy.contrib.walk [let]])
 (require [hy.extra.anaphoric [*]])
 (require [adderall.dsl [*]])
 
+
+;; Patch the original `walk` so that it handles cons pairs.
+(setv orig-walk hy.contrib.walk.walk)
+(defn cons-walk [inner outer form]
+  "A cons-aware version of `walk`"
+  (if (instance? ConsPair form)
+      (outer (ConsPair (inner (car form))
+                       (inner (cdr form))))
+      (orig-walk inner outer form)))
+(setv hy.contrib.walk.walk cons-walk)
+
+(import [hy.contrib.walk [prewalk]])
 
 (defn simplify-step-by-rule [rule expr]
   (let [alts (run* [q] (rule expr q))]
