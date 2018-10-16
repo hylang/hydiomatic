@@ -14,27 +14,26 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [hydiomatic.core [*]]
+(import [nose.tools [eq_]]
+        [hy [HyDict HyList]]
         [hydiomatic.rules [*]]
-        [hy [HyDict HyList]])
+        [hydiomatic.core [*]])
 
-(defmacro assert-step [expr expected]
-  `(assert (= (simplify-step '~expr rules/experimental)
-              '~expected)))
-
-(defmacro assert-simplify [expr expected]
-  `(assert (= (simplify '~expr rules/experimental)
-              '~expected)))
+(require [hy.contrib.walk [let]])
 
 (defmacro/g! wrap-stdout [&rest body]
   `(do
-    (import [sys] [io [StringIO]])
+     (import sys
+             [io [StringIO]])
     (setv ~g!old-stdout sys.stdout)
     (setv sys.stdout (StringIO))
     (setv ~g!result (do ~@body))
     (setv ~g!stdout (.getvalue sys.stdout))
     (setv sys.stdout ~g!old-stdout)
     [~g!stdout ~g!result]))
+
+(defmacro assert-step [expr expected]
+  `(eq_ (simplify-step '~expr rules/experimental) '~expected))
 
 (defn test-rules-arithmetico []
   (assert-step (+ 2 1) (inc 2))
@@ -51,38 +50,35 @@
   (assert-step `~x x))
 
 (defn test-rules-control-structo []
-  (assert-step (if true :yes nil)
-               (when true :yes))
-  (assert-step (if true nil :no)
-               (unless true :no))
-  (assert-step (if true (do (and this that)))
-               (when true (and this that)))
-  (assert-step (if true ~@a)
-               (if true ~@a))
-  (assert-step (when (not true) :hello)
-               (unless true :hello))
+  (assert-step (if True :yes None) (when True :yes))
+  (assert-step (if True None :no) (unless True :no))
+  (assert-step (if True (do (and this that)))
+               (when True (and this that)))
+  (assert-step (if True ~@a) (if True ~@a))
+  (assert-step (when (not True) :hello)
+               (unless True :hello))
   (assert-step (do something)
-               something)
-  (assert-step (when true (do stuff))
-               (when true stuff))
-  (assert-step (unless true (do stuff))
-               (unless true stuff))
-  (assert-step (if (not true) a b)
-               (if-not true a b))
-  (assert-step (if (not true) a)
-               (if-not true a))
-  (assert-step (if-not true a)
-               (unless true a))
-  (assert-step (if-not true ~@a)
-               (if-not true ~@a))
+                something)
+  (assert-step (when True (do stuff))
+               (when True stuff))
+  (assert-step (unless True (do stuff))
+               (unless True stuff))
+  (assert-step (if (not True) a b)
+               (if-not True a b))
+  (assert-step (if (not True) a)
+               (if-not True a))
+  (assert-step (if-not True a)
+               (unless True a))
+  (assert-step (if-not True ~@a)
+               (if-not True ~@a))
   (assert-step (fn [a b c] (do (+ a b c) (inc a)))
                (fn [a b c] (+ a b c) (inc a)))
   (assert-step (fn [a b c] "This is my docstring!"
                  (do (+ a b c) (inc a)))
                (fn [a b c] "This is my docstring!"
                  (+ a b c) (inc a)))
-  (assert-step (try (do (something) (catch [e Exception] (pass))))
-               (try (something) (catch [e Exception] (pass))))
+  (assert-step (try (do (something) (except [e Exception] None)))
+               (try (something) (except [e Exception] None)))
   (assert-step (defn foo [a b c] (do (+ a b c) (inc a)))
                (defn foo [a b c] (+ a b c) (inc a)))
   (assert-step (defn foo [a b c] "This is my docstring!"
@@ -91,44 +87,44 @@
                  (+ a b c) (inc a)))
   (assert-step (defn foo [a b c] something (do (+ a b c) (inc a)))
                (defn foo [a b c] something (do (+ a b c) (inc a))))
-  (assert-step (if true a)
-               (when true a))
+  (assert-step (if True a)
+               (when True a))
   (assert-step (let [[a 1] [b 2]]
-                 (do (print a b)
-                     (+ a b)))
+                    (do (print a b)
+                        (+ a b)))
                (let [[a 1] [b 2]]
-                 (print a b)
-                 (+ a b)))
+                    (print a b)
+                    (+ a b)))
   (assert-step (loop [[i 1]]
                      (do
-                      (print i)
-                      (when (< i 10)
-                        (recur (inc i)))))
+                       (print i)
+                       (when (< i 10)
+                         (recur (inc i)))))
                (loop [[i 1]]
                      (print i)
                      (when (< i 10)
                        (recur (inc i)))))
-  (assert-step (loop [] (when true (print "zing") (recur)))
-               (while true (print "zing")))
-  (assert-step (while true (yield (lambda []
-                                    true)))
+  (assert-step (loop [] (when True (print "zing") (recur)))
+               (while True (print "zing")))
+  (assert-step (while True (yield (lambda []
+                                    True)))
                (repeatedly (lambda []
-                             true))))
+                             True))))
 
 (defn test-rules-equalityo []
-  (assert-step (= 0 x) (zero? x))
-  (assert-step (= x 0) (zero? x))
-  (assert-step (< 0 x) (pos? x))
-  (assert-step (> x 0) (pos? x))
-  (assert-step (< x 0) (neg? x))
-  (assert-step (is n nil) (nil? n))
-  (assert-step (is nil n) (nil? n))
-  (assert-step (none? n) (nil? n))
-  (assert-step (= (% n 2) 0) (even? n))
-  (assert-step (= (% n 2) 1) (odd? n))
-  (assert-step (not (is a b c)) (is-not a b c))
-  (assert-step (not (= a b c)) (!= a b c))
-  (assert-step (not (in a b c)) (not-in a b c))
+  (assert-step  (= 0 x) (zero? x))
+  (assert-step  (= x 0) (zero? x))
+  (assert-step  (< 0 x) (pos? x))
+  (assert-step  (> x 0) (pos? x))
+  (assert-step  (< x 0) (neg? x))
+  (assert-step  (is n None) (none? n))
+  (assert-step  (is None n) (none? n))
+  (assert-step  (none? n) (none? n))
+  (assert-step  (= (% n 2) 0) (even? n))
+  (assert-step  (= (% n 2) 1) (odd? n))
+  (assert-step  (not (is a b c)) (is-not a b c))
+  (assert-step  (not (= a b c)) (!= a b c))
+  (assert-step  (not (in a b c)) (not-in a b c))
   (assert-step (if-not (is condition False) 'yes 'no)
                (if (is-not condition False) 'yes 'no)))
 
@@ -148,20 +144,15 @@
   (assert-step (defn foo (a b c) "docstring!" (+ a b c))
                (defn foo [a b c] "docstring!" (+ a b c)))
   (let [alt (simplify-step '(defn foo (a b c) (+ a b c)))]
-    (assert (= (type (get alt 2))
-               HyList)))
+        (eq_ (type (get alt 2)) HyList))
   (let [alt (simplify-step '(defun foo (a b c) (+ a b c)))]
-    (assert (= (type (get alt 2))
-               HyList)))
+        (eq_ (type (get alt 2)) HyList))
   (let [alt (simplify-step '(defn-alias [foo bar] (a b c) (+ a b c)))]
-    (assert (= (type (get alt 2))
-               HyList)))
+        (eq_ (type (get alt 2)) HyList))
   (let [alt (simplify-step '(defun-alias [foo bar] (a b c) (+ a b c)))]
-    (assert (= (type (get alt 2))
-               HyList)))
+        (eq_ (type (get alt 2)) HyList))
   (let [alt (simplify-step '(defn foo (a b c) "docstring!" (+ a b c)))]
-    (assert (= (type (get alt 2))
-               HyList)))
+        (eq_ (type (get alt 2)) HyList))
 
   (assert-step (isinstance x foo) (instance? foo x))
   (assert-step (instance? float x) (float? x))
@@ -176,56 +167,73 @@
                (-> a b c d))
   (assert-step (-> a) a)
 
+  (assert-step (apply (.method self param1 param2)
+                      {"key" "value"})
+               (self.method #* [param1 param2]
+                            #** {"key" "value"}))
   (assert-step (kwapply (.method self param1 param2)
                         {"key" "value"})
-               (apply self.method [param1 param2]
-                      {"key" "value"}))
+               (self.method #* [param1 param2]
+                            #** {"key" "value"}))
 
+  (assert-step (apply (.method (some-stuff))
+                      {"key" "value"})
+               (.method #* [(some-stuff)]
+                        #** {"key" "value"}))
   (assert-step (kwapply (.method (some-stuff))
                         {"key" "value"})
-               (apply .method [(some-stuff)]
-                      {"key" "value"}))
+               (.method #* [(some-stuff)]
+                        #** {"key" "value"}))
 
+  (assert-step (apply (method param1 param2)
+                      {"key" "value"})
+               (method #* [param1 param2]
+                       #** {"key" "value"}))
   (assert-step (kwapply (method param1 param2)
                         {"key" "value"})
-               (apply method [param1 param2]
-                      {"key" "value"})))
+               (method #* [param1 param2]
+                       #** {"key" "value"}))
+
+  (assert-step (apply method [param1 param2]
+                      {"key" "value"})
+               (method #* [param1 param2]
+                       #** {"key" "value"})))
 
 (defn test-rules-optimo []
   (assert-step (defn foo [x]
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defn foo [x]
                  (setv y (inc x))
                  (print x y)))
   (assert-step (defun foo [x]
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defun foo [x]
                  (setv y (inc x))
                  (print x y)))
   (assert-step (defn-alias [foo bar] [x]
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defn-alias [foo bar] [x]
                  (setv y (inc x))
                  (print x y)))
   (assert-step (defun-alias [foo bar] [x]
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defun-alias [foo bar] [x]
                  (setv y (inc x))
                  (print x y)))
   (assert-step (defn foo [x a &optional [foo 'bar]]
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defn foo [x a &optional [foo 'bar]]
                  (setv y (inc x))
                  (print x y)))
   (assert-step (defn foo [x]
                  (let [[y (inc x)] [z (inc y)]]
-                   (print x y)
-                   (+ x y z)))
+                      (print x y)
+                      (+ x y z)))
                (defn foo [x]
                  (setv y (inc x))
                  (setv z (inc y))
@@ -234,7 +242,7 @@
   (assert-step (defn foo [x]
                  "This is my docstring"
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defn foo [x]
                  "This is my docstring"
                  (setv y (inc x))
@@ -242,14 +250,14 @@
   (assert-step (defn foo [x]
                  (make-something)
                  (let [[y (inc x)]]
-                   (print x y)))
+                      (print x y)))
                (defn foo [x]
                  (make-something)
                  (let [[y (inc x)]]
-                   (print x y))))
+                      (print x y))))
 
-  (assert-step (fn [x] (nil? x))
-               nil?)
+  (assert-step (fn [x] (none? x))
+               none?)
   (assert-step (fn [x] (+ x 2))
                (fn [x] (+ x 2)))
   (assert-step (fn [a b] (mix a b))
@@ -265,97 +273,103 @@
   (assert-step () ())
   (assert-step (inc 2) (inc 2))
   (assert-step [a] [a])
-  (assert (= (type (simplify '[]))
-             HyList)))
+  (eq_ (type (simplify '[])) HyList))
+
+(defmacro assert-simplify [expr expected]
+  `(eq_ (simplify '~expr rules/experimental) '~expected))
 
 (defn test-simplify []
   (assert-simplify (something (+ 1 (+ 1)))
                    (something (inc 1)))
   (assert-simplify (* 2 (* 3 (+ 5 (+ 1))))
-                   (* 2 3 (inc 5)))
+                    (* 2 3 (inc 5)))
   (assert-simplify (* a (* b (+ c (+ 1))))
-                   (* a b (inc c)))
+                    (* a b (inc c)))
   (assert-simplify [a b (+ 2 1) `~x]
-                   [a b (inc 2) x])
-  (assert-simplify (if true (do this) (do that))
-                   (if true this that))
-  (assert-simplify (def a {"foo" (+ 1 1)})
-                   (def a {"foo" (inc 1)}))
+                    [a b (inc 2) x])
+  (assert-simplify (if True (do this) (do that))
+                    (if True this that))
+  (assert-simplify (setv a {"foo" (+ 1 1)})
+                    (setv a {"foo" (inc 1)}))
   (assert-simplify (= (len coll) 0)
-                   (empty? coll))
+                    (empty? coll))
   (assert-simplify (defmacro if-truth [test &rest branches]
-                     (if (not (is ~test)) ~@branches))
-                   (defmacro if-truth [test &rest branches]
-                     (if (is-not ~test) ~@branches)))
+                      (if (not (is ~test)) ~@branches))
+                    (defmacro if-truth [test &rest branches]
+                      (if (is-not ~test) ~@branches)))
 
   (assert-simplify {"foo" "bar"} {"foo" "bar"})
-  (assert (= (type (simplify '{"foo" "bar"}))
-             HyDict)))
+  (eq_ (type (simplify '{"foo" "bar"})) HyDict))
 
 (defn test-warnings []
-  (assert (= (wrap-stdout
-              (simplify-step '(defn nodocs [a] (inc a))
-                             rules/warnings))
-             ["; Function `nodocs` has no docstring.\n"
-              `(defn nodocs [a] (inc a))]))
+  (eq_ (wrap-stdout (simplify-step '(defn nodocs [a] (inc a))
+                                   rules/warnings))
+       ["; Function `nodocs` has no docstring.\n"
+        `(defn nodocs [a] (inc a))])
 
-  (assert (= (wrap-stdout
-              (simplify-step '(fn [a, b] (+ a b))
-                             rules/warnings))
-             ["; In `(fn [a, b] (+ a b))`, you may want to use `a` instead of `a,` in the arglist.\n"
-              `(fn [a, b] (+ a b))]))
-
-  (assert (= (wrap-stdout
-              (simplify-step '(fresh [f r]
-                                     (firstᵒ l f)
-                                     (restᵒ l r))
-                             rules/warnings))
-             ["; Instead of `(firstᵒ l f)` and `(restᵒ l r)`, consider using `(consᵒ f r l)`.\n"
-              `(fresh [f r]
-                      (firstᵒ l f)
-                      (restᵒ l r))]))
-  (assert (= (wrap-stdout
-              (simplify '(def FOO "bar")
+  (eq_ (wrap-stdout
+         (simplify-step '(fn [a, b] (+ a b))
                         rules/warnings))
-             ["; Instead of `FOO`, consider using `*foo*`.\n"
-              `(def FOO "bar")])))
+       ["; In `(fn [a, b] (+ a b))`, you may want to use `a` instead of `a,` in the arglist.\n"
+        `(fn [a, b] (+ a b))])
+
+  (eq_ (wrap-stdout
+         (simplify-step '(fresh [f r]
+                                (firstᵒ l f)
+                                (restᵒ l r))
+                        rules/warnings))
+       ["; Instead of `(firstᵒ l f)` and `(restᵒ l r)`, consider using `(consᵒ f r l)`.\n"
+        `(fresh [f r]
+                (firstᵒ l f)
+                (restᵒ l r))])
+  (eq_ (wrap-stdout
+         (simplify '(def FOO "bar")
+                   rules/warnings))
+       ["; Instead of `FOO`, consider using `*foo*`.\n"
+        `(def FOO "bar")]))
 
 (defmacro assert-cleanup [expr expected]
-  `(assert (= (simplify '~expr rules/grand-cleanup)
-              '~expected)))
+  `(eq_ (simplify '~expr rules/grand-cleanup) '~expected))
 
 (defn test-grand-cleanup []
   (assert-cleanup (let [x] x)
-                  (let [x nil] x))
-  (assert-cleanup (let [[x 1]
-                        [y (+ x 2)]]
-                    (, x y))
-                  (let [x 1
-                        y (+ x 2)]
-                    (, x y)))
-  (assert-cleanup (with [[x 1] [y 2] z]
-                        (, x y z))
-                  (with [x 1 y 2 z nil]
-                        (, x y z)))
-  (assert-cleanup (let [[[x y] [1 2]]
-                        z
-                        [a (+ x y)]]
-                    (, a z))
-                  (let [[x y] [1 2]
-                        z nil
-                        a (+ x y)]
-                    (, a z)))
-  (assert-cleanup (defn some-function []
-                    (let [[x 1]]
-                      x))
-                  (defn some-function []
-                    (let [x 1]
-                      x)))
+                  (let [x] x)
+                  #_(let [x None] x))
+  ;; Don't break perfectly fine `let`s.
+  (assert-cleanup (let [x y] x)
+                  (let [x y] x))
+  ;; TODO: We can't reinstate these until some form of `let` argument pairing is
+  ;; implemented; otherwise, the test that follows (and all well-formatted `let`
+  ;; bindings) will be broken.
+  #_(assert-cleanup (let [[x 1]
+                          [y (+ x 2)]]
+                         (, x y))
+                    (let [x 1
+                          y (+ x 2)]
+                         (, x y)))
+  #_(assert-cleanup (let [[[x y] [1 2]]
+                          z
+                          [a (+ x y)]]
+                         (, a z))
+                    (let [[x y] [1 2]
+                          ;; TODO: Same as above.
+                          ;; z None
+                          z
+                          a (+ x y)]
+                         (, a z)))
+  #_(assert-cleanup (with [[x 1] [y 2] z]
+                      (, x y z))
+                    (with [x 1 y 2 z None]
+                      (, x y z)))
+  #_(assert-cleanup (defn some-function []
+                      (let [[x 1]] x))
+                    (defn some-function []
+                      (let [x 1] x)))
   (assert-cleanup (for [x (range 5)
                         y (range 5)]
                     (do
-                     (print x y)
-                     (, x y)))
+                      (print x y)
+                      (, x y)))
                   (for [x (range 5)
                         y (range 5)]
                     (print x y)
@@ -412,13 +426,13 @@
   (assert-cleanup (throw)
                   (raise))
   (assert-cleanup (try
-                   (do-something)
-                   (catch [e Exception]
-                     (handle-it!)))
+                    (do-something)
+                    (catch [e Exception]
+                      (handle-it!)))
                   (try
-                   (do-something)
-                   (except [e Exception]
-                     (handle-it!))))
+                    (do-something)
+                    (except [e Exception]
+                      (handle-it!))))
 
   (assert-cleanup (progn something
                          something-else)
@@ -432,25 +446,36 @@
                     "docstring"
                     (len args)))
 
-  (assert-cleanup (lisp-if test true false)
-                  (lif test true false))
-  (assert-cleanup (lisp-if-not test false true)
-                  (lif-not test false true))
+  (assert-cleanup (lisp-if test True False)
+                  (lif test True False))
+  (assert-cleanup (lisp-if-not test False True)
+                  (lif-not test False True))
 
   (assert-cleanup null
-                  nil)
+                  None)
   (assert-cleanup (defn foo [] null)
-                  (defn foo [] nil))
+                  (defn foo [] None))
 
   (assert-cleanup (zipwith operator.add [1 2 3] [4 5 6])
                   (map operator.add [1 2 3] [4 5 6]))
 
   (assert-cleanup (filterfalse odd? [1 2 3 4 5 6 7])
-                  (remove odd? [1 2 3 4 5 6 7])))
+                  (remove odd? [1 2 3 4 5 6 7]))
+
+  (assert-cleanup (require blah) (require [blah [*]]))
+  (assert-cleanup (import [blah]) (import blah))
+
+  (assert-cleanup (list-comp (print x) [x (range 10)])
+                  (lfor x (range 10) (print x)))
+
+  (assert-cleanup (car . cdr)
+                  (cons car cdr)
+                  #_(do
+                      (import [adderall.internal [cons ConsPair]])
+                      (cons car cdr))))
 
 (defmacro assert-joke [expr expected]
-  `(assert (= (simplify '~expr rules/jokes)
-              ~expected)))
+  `(eq_ (simplify '~expr rules/jokes) ~expected))
 
 (defn test-jokes []
-  (assert-joke foo? (HySymbol "foo, eh?")))
+  (assert-joke foo? (HySymbol "foo, eh?")))

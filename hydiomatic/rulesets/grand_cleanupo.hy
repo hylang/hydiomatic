@@ -16,9 +16,14 @@
 
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
+        [adderall.internal [ConsPair]]
+        [hydiomatic.utils [hypprint hypformat]]
         [hy [HySymbol HyList HyExpression]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [adderall.debug [*]])
+(require [hydiomatic.macros [*]])
+
 
 (defn simple-flatten [coll]
   (setv new-coll [])
@@ -28,16 +33,17 @@
 
 (defn transform-bindingᵒ [in out]
   (prep
-   (condᵉ [(typeᵒ in HyList) (≡ out in)]
-          (else (≡ out `[~in nil])))))
+    (condᵉ [(typeᵒ in HyList) (≡ out in)]
+           ;; FIXME: This is the problematic None pairing step.
+           (else (≡ out `[~in None])))))
 
 (defn transform-conditionᵒ [in out]
   (prep
    (consᵒ ?test ?effects in)
    (firstᵒ ?effects ?effect)
    (condᵉ
-    [(≡ ?effect `(do . ~?body))
-     (≡ ?result `(~?test . ~?body))
+    [(≡ ?effect (cons 'do ?body))
+     (≡ ?result (cons ?test ?body))
      (project [?result]
               (≡ out (HyList ?result)))]
     (else (≡ in out)))))
@@ -63,26 +69,31 @@
 
 (defn transform-defnᵒ [in out]
   (prep
-   (≡ in `[~?name (fn . ~?body)])
-   (≡ out `(defn ~?name . ~?body))))
+   (≡ in `[~?name ~(cons 'fn ?body)])
+   (≡ out (cons 'defn ?name ?body))))
 
 (defrules [rules/grand-cleanupᵒ rules/grand-cleanupo]
-  ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z nil] ...)
-  ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z nil] ...)
-  (prep
-   (≡ expr `(~?op ~?bindings . ~?body))
-   (memberᵒ ?op `[let with])
-   (transform-listᵒ transform-bindingᵒ ?bindings ?new-bindings)
-   (project [?new-bindings]
-            (≡ ?flat-bindings (simple-flatten ?new-bindings)))
-   (condᵉ
-    [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
-    [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
-   (≡ out `(~?new-op ~?flat-bindings . ~?body)))
+  ;; TODO FIXME: Given the new, strict argument pairing in `let`,
+  ;; this logic is now too eager and splits up valid
+  ;; binding pairs, reassigning each element to `None`
+  ;; (e.g. [x y] -> [x None y None]).
+
+  ;; (let [[x 1] [y 2] z] ...) => (let [x 1 y 2 z None] ...)
+  ;; (with [[x 1] [y 2] z] ...) => (with [x 1 y 2 z None] ...)
+  ;; (prep
+  ;;     (≡ expr (cons ?op ?bindings ?body))
+  ;;     (memberᵒ ?op `[let with])
+  ;;     (transform-listᵒ transform-bindingᵒ ?bindings ?new-bindings)
+  ;;     (project [?new-bindings]
+  ;;              (≡ ?flat-bindings (simple-flatten ?new-bindings)))
+  ;;     (condᵉ
+  ;;       [(≡ ?op `let) (≡ ?new-op `$hydiomatic/let$)]
+  ;;       [(≡ ?op `with) (≡ ?new-op `$hydiomatic/with$)])
+  ;;     (≡ out (cons ?new-op ?flat-bindings ?body)))
 
   ;; (for [...] (do ...)) => (for [...] ...)
-  [`(for ~?bindings (do . ~?body))
-   `(for ~?bindings . ~?body)]
+  [`(for ~?bindings ~(cons 'do ?body))
+   (cons 'for ?bindings ?body)]
 
   ;; (cond [(test) (do ...)]
   ;;       [(test2) (effect)])
@@ -90,9 +101,9 @@
   ;; (cond [(test) ...]
   ;;       [(test2) (effect)])
   (prep
-   (≡ expr `(cond . ~?conditions))
+   (≡ expr (cons 'cond ?conditions))
    (transform-listᵒ transform-conditionᵒ ?conditions ?new-conditions)
-   (≡ out `(cond . ~?new-conditions)))
+   (≡ out (cons 'cond ?new-conditions)))
 
   ;; (defclass A [...]
   ;;   [[x 1]
@@ -118,56 +129,109 @@
             (transform-listᵒ transform-defnᵒ ?fns ?new-fns))
    (condᵉ
     [(emptyᵒ ?docstring)
-     (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
-                     ~?new-vars . ~?new-fns))]
+     (≡ ?new-form (cons '$hydiomatic/defclass$ ?name ?base-list
+                    ?new-vars ?new-fns))]
     (else
-     (≡ ?new-form `($hydiomatic/defclass$ ~?name ~?base-list
-                     ~?docstring
-                     ~?new-vars . ~?new-fns))))
+     (≡ ?new-form (cons '$hydiomatic/defclass$ ?name ?base-list
+                    ?docstring
+                    ?new-vars ?new-fns))))
    (project [?new-form]
             (≡ out (HyExpression ?new-form))))
 
+  (prep
+    (≡ expr `(require ~?lib))
+    (condᵉ [(typeᵒ ?lib HySymbol)])
+    (≡ `(require [~?lib [*]]) out))
+
+  [`(import [~?lib]) `(import ~?lib)]
+
+  [`(list-comp ~?body [~?x ~?bindings])
+   `(lfor ~?x ~?bindings ~?body)]
+
   ;; (slice) is now (cut)
-  [`(slice . ~?body) `(cut . ~?body)]
+  [(cons 'slice ?body) (cons 'cut ?body)]
 
   ;; (throw) is now (rise)
-  [`(throw . ~?body) `(raise . ~?body)]
+  [(cons 'throw ?body) (cons 'raise ?body)]
 
   ;; (catch) is now (except)
-  [`(catch . ~?body) `(except . ~?body)]
+  [(cons 'catch ?body) (cons 'except ?body)]
 
   ;; (progn) is now (do)
-  [`(progn . ~?body) `(do . ~?body)]
+  [(cons 'progn ?body) (cons 'do ?body)]
 
   ;; (defun) is now (defn)
-  [`(defun . ~?body) `(defn . ~?body)]
+  [(cons 'defun ?body) (cons 'defn ?body)]
+
+  ;; (def) is now (setv)
+  [(cons 'def ?body) (cons 'setv ?body)]
 
   ;; (lisp-if) and (lisp-if-not) are now (lif) and (lif-not)
-  [`(lisp-if . ~?body) `(lif . ~?body)]
-  [`(lisp-if-not . ~?body) `(lif-not . ~?body)]
+  [(cons 'lisp-if ?body) (cons 'lif ?body)]
+  [(cons 'lisp-if-not ?body) (cons 'lif-not ?body)]
 
-  ;; null => nil
-  [`null `nil]
+  ;; null => None
+  [`null `None]
+
+  ;; nill => None
+  [`nil `None]
+
+  ;; true => True
+  [`true `True]
+
+  ;; false => False
+  [`false `False]
 
   ;; zipwith => map
   [`zipwith `map]
 
   ;; filterfalse => remove
-  [`filterfalse `remove])
+  [`filterfalse `remove]
+
+  ;; (car . cdr) => (cons car cdr)
+  (prep
+    (≡ expr `(~?car . ~?cdr))
+    (≡ ?cons-out `(cons ~?car ~?cdr))
+    ;; At the very least, let's give a warning about the necessary
+    ;; import.
+    (project [expr]
+             (log (.format (+ "; TODO XXX FIXME: Cons objects have been removed, "
+                              "consider refactoring: `{0}`.\n"
+                              "; This cons has been replaced by cons and ConsPair from "
+                              "`adderall.internal`.\n; You will need to manually "
+                              "include these dependencies.")
+                           (.rstrip (hypformat expr)))))
+    ;; TODO Find a better way to automatically add the import.
+    ;; E.g. at the beginning of the file.
+    #_(≡ out `(do
+                (import [adderall.internal [cons ConsPair]])
+                ~?cons-out))
+    (≡ out ?cons-out)))
 
 (defrules [rules/grand-cleanup-finishᵒ rules/grand-cleanup-finisho]
   ;; $hydiomatic/let$ => let
   ;; $hydiomatic/with$ => with
   (prep
-   (≡ expr `(~?op . ~?args))
+   (≡ expr (cons ?op ?args))
    (memberᵒ ?op `[$hydiomatic/let$
                   $hydiomatic/with$
                   $hydiomatic/defclass$])
    (condᵉ
     [(≡ ?op `$hydiomatic/let$)
-     (≡ ?new-op `let)]
+     (≡ ?new-op `let)
+     (project [expr]
+              (log (.format (+ "; TODO XXX FIXME: The `let` macro has been relocated to `hy.contrib.walk`.\n"
+                               "; You will need to manually include this dependency.")
+                            (.rstrip (hypformat expr)))))
+     (≡ out (cons ?new-op ?args))
+     ;; TODO: Check the appropriate context for the presence (or lack) of this
+     ;; import.
+     #_(≡ out `(do
+                 (require [hy.contrib.walk [let]])
+                 ~(cons ?new-op ?args)))]
     [(≡ ?op `$hydiomatic/with$)
-     (≡ ?new-op `with)]
+     (≡ ?new-op `with)
+     (≡ out (cons ?new-op ?args))]
     [(≡ ?op `$hydiomatic/defclass$)
-     (≡ ?new-op `defclass)])
-   (≡ out `(~?new-op . ~?args))))
+     (≡ ?new-op `defclass)
+     (≡ out (cons ?new-op ?args))])))

@@ -18,9 +18,11 @@
         [adderall.extra.misc [*]]
         [hydiomatic.utils [*]]
         [hy [HySymbol HyString]])
-(require adderall.dsl)
-(require adderall.debug)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [adderall.debug [*]])
+(require [hydiomatic.macros [*]])
+
 
 (defn recmemberᵒ [v l]
   (condᵉ
@@ -28,7 +30,7 @@
     (fresh [f r]
            (consᵒ f r l)
            (condᵉ
-            [(recmemberᵒ v f) #ss]
+            [(recmemberᵒ v f) s#]
             (else (recmemberᵒ v r))))]
    (else (≡ v l))))
 
@@ -41,34 +43,34 @@
 (defrules [rules/warningsᵒ rules/warningso]
   ;; (fn [x, y] (foo x y)) => WARN on using x,!
   (prep
-   (≡ expr `(~?op ~?vars . ~?body))
+   (≡ expr (cons ?op ?vars ?body))
    (memberᵒ ?op `[fn defn defun defmacro])
    (memberᵒ ?x ?vars)
    (typeᵒ ?x HySymbol)
    (project [?x]
             (≡ ?xstripped (.rstrip ?x ","))
             (if (.endswith ?x ",")
-              #ss
-              #uu))
+              s#
+              u#))
    (recmemberᵒ ?xstripped ?body)
    (condᵉ
-    [(recmemberᵒ ?x ?body) #uu]
-    (else #ss))
+    [(recmemberᵒ ?x ?body) u#]
+    (else s#))
    (project [expr ?x ?xstripped]
             (suggest expr ?x (HySymbol ?xstripped)))
-   #uu)
+   u#)
 
   ;; A function without a docstring is a bad function.
   (prep
-   (≡ expr `(~?op ~?name ~?vars . ~?body))
+   (≡ expr (cons ?op ?name ?vars ?body))
    (memberᵒ ?op `[fn defn defun defmacro])
    (consᵒ ?docstring ?rest ?body)
    (project [?docstring ?rest ?name]
             (if (= (type ?docstring) HyString)
-              #ss
+              s#
               (log (.format "; Function `{0}` has no docstring."
                             (.rstrip (hypformat ?name))))))
-   #uu)
+   u#)
   ;; (firstᵒ l f) (restᵒ l r) => (consᵒ f r l)
   (prep
    (condᵉ
@@ -84,7 +86,7 @@
                           (.rstrip (hypformat ?foexp))
                           (.rstrip (hypformat ?roexp))
                           (.rstrip (hypformat `(consᵒ ~?f ~?r ~?l))))))
-   #uu)
+   u#)
 
   ;; CAPITAL symbols are the same as *ear-muffed* ones, and earmuffs
   ;; are more hydiomatic.
@@ -93,8 +95,8 @@
    (project [expr]
             (do
              (if (.isupper expr)
-               #ss
-               #uu)))
+               s#
+               u#)))
    (project [expr]
             (≡ ?suggestion (+ "*" (.lower expr) "*")))
    (project [?suggestion]
@@ -103,4 +105,4 @@
             (log (.format "; Instead of `{0}`, consider using `{1}`."
                           (.rstrip (hypformat expr))
                           (.rstrip (hypformat ?suggested-symbol)))))
-   #uu))
+   u#))

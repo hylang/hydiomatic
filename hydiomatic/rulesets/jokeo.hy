@@ -17,14 +17,15 @@
 (import [adderall.dsl [*]]
         [adderall.extra.misc [*]]
         [hy [HySymbol]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
 
 (defrules [rules/joke/canadaᵒ rules/joke/canadao]
   ;; foo? => foo, eh?
   (prep
    (typeᵒ expr HySymbol)
    (project [expr]
-            (if (.startswith expr "is_")
-              (≡ out (HySymbol (+ (cut expr 3) ", eh?")))
+            (if (.startswith (mangle expr) "is_")
+              (≡ out (HySymbol (+ (cut (mangle expr) 3) ", eh?")))
               (≡ out expr)))))

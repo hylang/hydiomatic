@@ -14,11 +14,27 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-(import [adderall.dsl [*]]
-        [hydiomatic.rules [*]]
-        [hy.contrib.walk [prewalk]])
-(require adderall.dsl)
-(require hy.contrib.anaphoric)
+(import hy.contrib.walk
+        [adderall.dsl [*]]
+        [adderall.internal [ConsPair car cdr]])
+(import [hydiomatic.rules [*]])
+
+(require [hy.contrib.walk [let]])
+(require [hy.extra.anaphoric [*]])
+(require [adderall.dsl [*]])
+
+
+;; Patch the original `walk` so that it handles cons pairs.
+(setv orig-walk hy.contrib.walk.walk)
+(defn cons-walk [inner outer form]
+  "A cons-aware version of `walk`"
+  (if (instance? ConsPair form)
+      (outer (ConsPair (inner (car form))
+                       (inner (cdr form))))
+      (orig-walk inner outer form)))
+(setv hy.contrib.walk.walk cons-walk)
+
+(import [hy.contrib.walk [prewalk]])
 
 (defn simplify-step-by-rule [rule expr]
   (let [alts (run* [q] (rule expr q))]
@@ -48,10 +64,10 @@
   (cleanup-step (simplify-step* expr rules)))
 
 (defn simplify* [expr &optional [rules rules/default]]
-  (setv new-expr (prewalk (xi simplify-step* x1 rules) expr))
+  (setv new-expr (prewalk #%(simplify-step* %1 rules) expr))
   (unless (= new-expr expr)
-    (while true
-      (setv res (prewalk (xi simplify-step* x1 rules) new-expr))
+    (while True
+      (setv res (prewalk #%(simplify-step* %1 rules) new-expr))
       (when (= res new-expr)
         (break))
       (setv new-expr res)))
@@ -62,11 +78,11 @@
 
 (defn simplifications [expr &optional [rules rules/default]]
   (setv stages [expr])
-  (setv new-expr (prewalk (xi simplify-step* x1 rules) expr))
+  (setv new-expr (prewalk #%(simplify-step* %1 rules) expr))
   (unless (= new-expr expr)
     (.append stages (cleanup-step new-expr))
-    (while true
-      (setv res (prewalk (xi simplify-step* x1 rules) new-expr))
+    (while True
+      (setv res (prewalk #%(simplify-step* %1 rules) new-expr))
       (when (= res new-expr)
         (break))
       (setv new-expr res)

@@ -14,6 +14,7 @@
 ;; You should have received a copy of the GNU Lesser General Public
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+(import [adderall.dsl [*]])
 (import [hydiomatic.rulesets.arithmetico [*]]
         [hydiomatic.rulesets.quoteo [*]]
         [hydiomatic.rulesets.control-structo [*]]
@@ -23,12 +24,13 @@
         [hydiomatic.rulesets.optimo [*]]
         [hydiomatic.rulesets.warningso [*]]
         [hydiomatic.rulesets.grand-cleanupo [*]]
-        [hydiomatic.rulesets.jokeo [*]]
-        [adderall.dsl [*]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+        [hydiomatic.rulesets.jokeo [*]])
 
-(def rules/default
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
+
+
+(setv rules/default
   [rules/arithmeticᵒ
    rules/quoteᵒ
    rules/equalityᵒ
@@ -36,16 +38,16 @@
    rules/collectionᵒ
    rules/syntaxᵒ])
 
-(def rules/experimental
+(setv rules/experimental
   (+ rules/default
      [rules/optimᵒ]))
 
-(def rules/grand-cleanup
+(setv rules/grand-cleanup
   (+ rules/default
      [rules/grand-cleanupᵒ]))
 
-(def rules/warnings
+(setv rules/warnings
   [rules/warningsᵒ])
 
-(def rules/jokes
+(setv rules/jokes
   [rules/joke/canadaᵒ])

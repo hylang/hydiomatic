@@ -15,8 +15,9 @@
 ;; License along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 (import [adderall.dsl [*]])
-(require adderall.dsl)
-(require hydiomatic.macros)
+
+(require [adderall.dsl [*]])
+(require [hydiomatic.macros [*]])
 
 (defrules [rules/quoteᵒ rules/quoteo]
   ;; `~x => x
