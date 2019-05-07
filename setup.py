@@ -19,7 +19,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="hydiomatic",
-    version="0.1.1",
+    version="0.2.0",
     install_requires=['hy>=0.15', 'adderall>=2.0.0'],
     packages=find_packages(exclude=['tests']),
     package_data={
@@ -34,7 +34,7 @@ setup(
     license="LGPL-3",
     url="https://github.com/hylang/hydiomatic",
     platforms=['any'],
-    python_requires='>=3.4',
+    python_requires='>=3.5',
     entry_points={
         'console_scripts':
             ['hydiomatic = hydiomatic.scripts:main',]
