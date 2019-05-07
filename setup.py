@@ -34,7 +34,7 @@ setup(
     license="LGPL-3",
     url="https://github.com/hylang/hydiomatic",
     platforms=['any'],
-    python_requires='>=3.4',
+    python_requires='>=3.5',
     entry_points={
         'console_scripts':
             ['hydiomatic = hydiomatic.scripts:main',]
